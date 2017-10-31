@@ -11,13 +11,10 @@ import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
-import java.util.concurrent.Callable;
 
 @Mod(modid = NoLives.MOD_ID, name = NoLives.MOD_NAME, version = NoLives.VERSION)
 public class NoLives
