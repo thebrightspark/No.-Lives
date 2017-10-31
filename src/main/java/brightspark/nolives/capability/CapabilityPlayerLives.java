@@ -1,5 +1,6 @@
 package brightspark.nolives.capability;
 
+import brightspark.nolives.Config;
 import brightspark.nolives.NoLives;
 import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.util.ResourceLocation;

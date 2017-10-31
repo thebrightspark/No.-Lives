@@ -36,6 +36,8 @@ public class NoLives
     {
         NETWORK = NetworkRegistry.INSTANCE.newSimpleChannel(MOD_ID);
         //TODO: Add message
+        //TODO: Add commands
+        //TODO: Use text files for custom messages
 
         CapabilityManager.INSTANCE.register(PlayerLives.class, new Capability.IStorage<PlayerLives>()
         {
