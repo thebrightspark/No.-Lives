@@ -1,6 +1,6 @@
 package brightspark.nolives;
 
-import brightspark.nolives.capability.PlayerLives;
+import brightspark.nolives.livesData.PlayerLivesWorldData;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import net.minecraftforge.fml.common.eventhandler.Event;
@@ -8,13 +8,15 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 @Cancelable
 public class LifeLossEvent extends Event
 {
+    private PlayerLivesWorldData data;
     private EntityPlayer player;
-    private PlayerLives lives;
+    private int lives;
 
     public LifeLossEvent(EntityPlayer player)
     {
+        data = PlayerLivesWorldData.get(player.world);
         this.player = player;
-        lives = NoLives.getLivesCap(player);
+        lives = data.getLives(player.getUniqueID());
     }
 
     public EntityPlayer getPlayer()
@@ -22,8 +24,13 @@ public class LifeLossEvent extends Event
         return player;
     }
 
-    public PlayerLives getLives()
+    public int getLives()
     {
         return lives;
+    }
+
+    public void setLives(int amount)
+    {
+        data.setLives(player.getUniqueID(), amount);
     }
 }
