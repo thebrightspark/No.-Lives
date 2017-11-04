@@ -1,5 +1,6 @@
 package brightspark.nolives;
 
+import brightspark.nolives.command.CommandLives;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
@@ -31,6 +32,6 @@ public class NoLives
     @Mod.EventHandler
     public void serverStarting(FMLServerStartingEvent event)
     {
-        //event.registerServerCommand();
+        event.registerServerCommand(new CommandLives());
     }
 }

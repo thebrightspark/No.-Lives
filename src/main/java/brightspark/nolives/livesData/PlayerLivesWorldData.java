@@ -53,8 +53,9 @@ public class PlayerLivesWorldData extends WorldSavedData
 
     public int setLives(UUID uuid, int lives)
     {
-        playerLives.put(uuid, lives);
-        return lives;
+        int newLives = Math.max(0, lives);
+        playerLives.put(uuid, newLives);
+        return newLives;
     }
 
     public int addLives(UUID uuid, int amount)
@@ -66,8 +67,7 @@ public class PlayerLivesWorldData extends WorldSavedData
     public int subLives(UUID uuid, int amount)
     {
         int current = getLives(uuid);
-        int newLives = Math.max(0, current - amount);
-        return setLives(uuid, newLives);
+        return setLives(uuid, current - amount);
     }
 
     @Override

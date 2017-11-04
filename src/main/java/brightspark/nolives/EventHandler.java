@@ -50,23 +50,27 @@ public class EventHandler
         EntityPlayer player = (EntityPlayer) event.getEntityLiving();
         if(getPlayerLives(player.world).getLives(player.getUniqueID()) > 0)
             return;
-        player.getServer().sendMessage(player.getDisplayName().appendText(" has run out of lives!"));
         MinecraftServer server = player.getServer();
+        server.getPlayerList().getPlayers().forEach((p) -> p.sendMessage(player.getDisplayName().appendText(" has run out of lives!")));
 
         //Play death sound
         if(!server.isSinglePlayer() || !Config.banOnOutOfLives)
             player.world.playSound(null, player.getPosition(), SoundEvents.ENTITY_PLAYER_DEATH, SoundCategory.PLAYERS, 1f, 0.5f);
 
         if(!Config.banOnOutOfLives)
-        {
             player.setGameType(GameType.SPECTATOR);
-        }
         else
         {
             if(server.isSinglePlayer() && player.getName().equals(server.getServerOwner()))
             {
                 //Single player world
-                //TODO: Delete world
+                if(player instanceof EntityPlayerMP)
+                    //TODO: This just crashes the client?
+                    ((EntityPlayerMP) player).connection.disconnect(new TextComponentString("You ran out of lives!"));
+                else
+                {
+                    //TODO: Delete world
+                }
             }
             else
             {
