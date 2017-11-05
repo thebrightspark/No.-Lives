@@ -2,7 +2,6 @@ package brightspark.nolives;
 
 public class Config
 {
-    //TODO: Create mod config
     /**
      * The amount of lives a new player will start with.
      */
@@ -14,5 +13,5 @@ public class Config
      *
      * If false, the player will be put into spectator mode.
      */
-    public static boolean banOnOutOfLives = true;
+    public static boolean banOnOutOfLives = false;
 }

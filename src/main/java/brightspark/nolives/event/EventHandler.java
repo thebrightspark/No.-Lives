@@ -1,6 +1,9 @@
-package brightspark.nolives;
+package brightspark.nolives.event;
 
+import brightspark.nolives.Config;
+import brightspark.nolives.NoLives;
 import brightspark.nolives.livesData.PlayerLivesWorldData;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.SoundEvents;
@@ -54,8 +57,7 @@ public class EventHandler
         server.getPlayerList().getPlayers().forEach((p) -> p.sendMessage(player.getDisplayName().appendText(" has run out of lives!")));
 
         //Play death sound
-        if(!server.isSinglePlayer() || !Config.banOnOutOfLives)
-            player.world.playSound(null, player.getPosition(), SoundEvents.ENTITY_PLAYER_DEATH, SoundCategory.PLAYERS, 1f, 0.5f);
+        player.world.playSound(null, player.getPosition(), SoundEvents.ENTITY_PLAYER_DEATH, SoundCategory.PLAYERS, 1f, 0.5f);
 
         if(!Config.banOnOutOfLives)
             player.setGameType(GameType.SPECTATOR);
@@ -64,10 +66,8 @@ public class EventHandler
             if(server.isSinglePlayer() && player.getName().equals(server.getServerOwner()))
             {
                 //Single player world
-                if(player instanceof EntityPlayerMP)
-                    //TODO: This just crashes the client?
-                    ((EntityPlayerMP) player).connection.disconnect(new TextComponentString("You ran out of lives!"));
-                else
+                //TODO: Kick/Disconnect player?
+                if(player instanceof EntityPlayerSP)
                 {
                     //TODO: Delete world
                 }

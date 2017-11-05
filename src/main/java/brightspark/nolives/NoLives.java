@@ -1,6 +1,8 @@
 package brightspark.nolives;
 
 import brightspark.nolives.command.CommandLives;
+import brightspark.nolives.event.ConfigHandler;
+import brightspark.nolives.livesData.MessageGetLives;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
@@ -25,6 +27,8 @@ public class NoLives
     {
         NETWORK = NetworkRegistry.INSTANCE.newSimpleChannel(MOD_ID);
         NETWORK.registerMessage(MessageGetLives.Handler.class, MessageGetLives.class, 0, Side.CLIENT);
+
+        ConfigHandler.init(event.getSuggestedConfigurationFile());
 
         //TODO: Use text files for custom messages
     }

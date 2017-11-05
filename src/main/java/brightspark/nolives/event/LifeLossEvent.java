@@ -1,4 +1,4 @@
-package brightspark.nolives;
+package brightspark.nolives.event;
 
 import brightspark.nolives.livesData.PlayerLivesWorldData;
 import net.minecraft.entity.player.EntityPlayer;

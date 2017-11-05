@@ -1,6 +1,5 @@
-package brightspark.nolives;
+package brightspark.nolives.livesData;
 
-import brightspark.nolives.livesData.PlayerLivesWorldData;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
