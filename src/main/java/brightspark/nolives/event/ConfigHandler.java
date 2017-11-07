@@ -34,6 +34,9 @@ public class ConfigHandler
                     "On single player, the player will be kicked and the world will be deleted.\n" +
                     "If false, the player will be put into spectator mode.");
         */
+
+        if(config.hasChanged())
+            config.save();
     }
 
     @SubscribeEvent
