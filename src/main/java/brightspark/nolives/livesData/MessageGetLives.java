@@ -53,16 +53,20 @@ public class MessageGetLives implements IMessage
         @Override
         public IMessage onMessage(MessageGetLives message, MessageContext ctx)
         {
-            Minecraft.getMinecraft().addScheduledTask(() ->
+            Minecraft.getMinecraft().addScheduledTask(new Runnable()
             {
-                EntityPlayer player = Minecraft.getMinecraft().player;
-                UUID playerUuid = player.getUniqueID();
-                for(Map.Entry<UUID, Integer> entry : message.lives.entrySet())
+                @Override
+                public void run()
                 {
-                    if(entry.getKey().equals(playerUuid))
+                    EntityPlayer player = Minecraft.getMinecraft().player;
+                    UUID playerUuid = player.getUniqueID();
+                    for(Map.Entry<UUID, Integer> entry : message.lives.entrySet())
                     {
-                        PlayerLivesWorldData data = PlayerLivesWorldData.get(player.world);
-                        if(data != null) data.setLives(playerUuid, entry.getValue());
+                        if(entry.getKey().equals(playerUuid))
+                        {
+                            PlayerLivesWorldData data = PlayerLivesWorldData.get(player.world);
+                            if(data != null) data.setLives(playerUuid, entry.getValue());
+                        }
                     }
                 }
             });

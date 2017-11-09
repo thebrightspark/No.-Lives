@@ -11,6 +11,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerProfileCache;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -34,9 +36,9 @@ public class CommandLives extends CommandBase
     }
 
     @Override
-    public int getRequiredPermissionLevel()
+    public boolean checkPermission(MinecraftServer server, ICommandSender sender)
     {
-        return 0;
+        return true;
     }
 
     private boolean canSenderUseCommand(ICommandSender sender, String commandVariant)
@@ -139,6 +141,13 @@ public class CommandLives extends CommandBase
                 }
                 sender.sendMessage(new TextComponentString(response));
             }
+        }
+        else if(player.world.isRemote)
+        {
+            //Does not have permission to use command
+            TextComponentTranslation message = new TextComponentTranslation("commands.generic.permission");
+            message.getStyle().setColor(TextFormatting.RED);
+            sender.sendMessage(message);
         }
     }
 
