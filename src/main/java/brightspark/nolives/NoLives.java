@@ -2,10 +2,13 @@ package brightspark.nolives;
 
 import brightspark.nolives.command.CommandLives;
 import brightspark.nolives.event.ConfigHandler;
+import brightspark.nolives.event.EventHandler;
 import brightspark.nolives.livesData.MessageGetLives;
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
@@ -35,6 +38,8 @@ public class NoLives
     private static Random rand = new Random();
     private static List<String> deathMessages, outOfLivesMessages;
 
+    private String worldName = null;
+
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
@@ -56,7 +61,16 @@ public class NoLives
     @Mod.EventHandler
     public void serverStarting(FMLServerStartingEvent event)
     {
+        worldName = event.getServer().getWorldName();
+
         event.registerServerCommand(new CommandLives());
+    }
+
+    @Mod.EventHandler
+    public void serverStopped(FMLServerStoppedEvent event)
+    {
+        if(EventHandler.shouldDeleteWorld() && worldName != null)
+            Minecraft.getMinecraft().getSaveLoader().deleteWorldDirectory(worldName);
     }
 
     private static List<String> readTextFile(File textFile, String defaultText)

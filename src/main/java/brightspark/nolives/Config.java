@@ -13,5 +13,5 @@ public class Config
      *
      * If false, the player will be put into spectator mode.
      */
-    public static boolean banOnOutOfLives = false;
+    public static boolean banOnOutOfLives = true;
 }
