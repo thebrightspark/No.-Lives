@@ -28,12 +28,10 @@ public class ConfigHandler
     private static void loadConfig()
     {
         Config.defaultLives = config.getInt("defaultLives", GENERAL, Config.defaultLives, 1, Integer.MAX_VALUE, "The amount of lives a new player will start with");
-        /*
         Config.banOnOutOfLives = config.getBoolean("banOnOutOfLives", GENERAL, Config.banOnOutOfLives,
             "If true, on a server the player who ran out of lives will be kicked and banned from the world.\n" +
                     "On single player, the player will be kicked and the world will be deleted.\n" +
                     "If false, the player will be put into spectator mode.");
-        */
 
         if(config.hasChanged())
             config.save();
