@@ -1,0 +1,24 @@
+{
+    "modListVersion": 2,
+    "modList":
+    [
+        {
+          "modid": "nolives",
+          "name": "No. Lives",
+          "description": "Hardcore but with a set amount of lives and some extra features!",
+          "version": "${version}",
+          "mcversion": "${mcversion}",
+          "url": "https://minecraft.curseforge.com/projects/no-lives",
+          "updateUrl": "",
+          "authorList": ["bright_spark"],
+          "credits": "",
+          "logoFile": "logo.jpg",
+          "screenshots": [],
+          "parent": "",
+          "dependants": [],
+          "dependencies": [],
+          "requiredMods": [],
+          "useDependencyInformation": true
+        }
+    ]
+}

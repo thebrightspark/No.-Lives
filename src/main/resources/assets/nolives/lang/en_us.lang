@@ -1,0 +1,3 @@
+itemGroup.nolives=No. Lives
+item.heart.name=Heart
+nolives.addLife=You now have 1 more life! You have %s lives remaining.

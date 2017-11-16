@@ -66,8 +66,10 @@ public class EventHandler
         EntityPlayer player = (EntityPlayer) event.getEntityLiving();
         if(getPlayerLives(player.world).getLives(player.getUniqueID()) > 0)
             return;
-
         MinecraftServer server = player.getServer();
+        if(server == null)
+            return;
+
         //Message all players
         String message = NoLives.getRandomOutOfLivesMessage();
         if(message != null)

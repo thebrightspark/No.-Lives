@@ -3,8 +3,12 @@ package brightspark.nolives;
 import brightspark.nolives.command.CommandLives;
 import brightspark.nolives.event.ConfigHandler;
 import brightspark.nolives.event.EventHandler;
+import brightspark.nolives.item.ItemHeart;
 import brightspark.nolives.livesData.MessageGetLives;
 import net.minecraft.client.Minecraft;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
@@ -34,6 +38,16 @@ public class NoLives
 
     public static Logger logger;
     public static SimpleNetworkWrapper NETWORK;
+    public static CreativeTabs tab = new CreativeTabs(MOD_ID)
+    {
+        @Override
+        public ItemStack getTabIconItem()
+        {
+            return new ItemStack(itemHeart);
+        }
+    };
+
+    public static Item itemHeart = new ItemHeart();
 
     private static Random rand = new Random();
     private static List<String> deathMessages, outOfLivesMessages;
