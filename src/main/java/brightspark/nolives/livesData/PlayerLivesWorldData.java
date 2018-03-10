@@ -1,8 +1,10 @@
 package brightspark.nolives.livesData;
 
 import brightspark.nolives.NoLives;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.MapStorage;
 import net.minecraft.world.storage.WorldSavedData;
@@ -38,6 +40,19 @@ public class PlayerLivesWorldData extends WorldSavedData
             storage.setData(NAME, instance);
         }
         return instance;
+    }
+
+    public static boolean addLives(World world, EntityPlayer player, int amount)
+    {
+        PlayerLivesWorldData data = get(world);
+        if(data != null)
+        {
+            data.addLives(player.getUniqueID(), amount);
+            player.sendMessage(new TextComponentTranslation(NoLives.MOD_ID + ".addLife", data.getLives(player.getUniqueID())));
+            return true;
+        }
+        NoLives.logger.error("Unable to add life to player " + player.getDisplayNameString() + ". PlayerLivesWorldData was null!");
+        return false;
     }
 
     public int getLives(UUID uuid)

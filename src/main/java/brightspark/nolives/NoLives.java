@@ -1,10 +1,11 @@
 package brightspark.nolives;
 
+import brightspark.nolives.block.BlockHeart;
 import brightspark.nolives.command.CommandLives;
-import brightspark.nolives.event.ConfigHandler;
 import brightspark.nolives.event.EventHandler;
 import brightspark.nolives.item.ItemHeart;
 import brightspark.nolives.livesData.MessageGetLives;
+import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
@@ -48,6 +49,7 @@ public class NoLives
     };
 
     public static Item itemHeart = new ItemHeart();
+    public static Block blockHeart = new BlockHeart();
 
     private static Random rand = new Random();
     private static List<String> deathMessages, outOfLivesMessages;
@@ -63,9 +65,6 @@ public class NoLives
         NETWORK.registerMessage(MessageGetLives.Handler.class, MessageGetLives.class, 0, Side.CLIENT);
 
         File configDir = new File(event.getModConfigurationDirectory(), MOD_ID);
-
-        ConfigHandler.init(new File(configDir, MOD_ID + ".cfg"));
-
         if(!configDir.mkdirs())
             logger.error("Config directory either already exists or couldn't be created");
         deathMessages = readTextFile(new File(configDir, "deathMessages.txt"), "You have %s lives left");

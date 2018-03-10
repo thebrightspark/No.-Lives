@@ -1,3 +1,4 @@
 itemGroup.nolives=No. Lives
 item.heart.name=Heart
-nolives.addLife=You now have 1 more life! You have %s lives remaining.
+tile.block_heart.name=Heart Block
+nolives.addLife=1 life added! You have %s lives remaining.

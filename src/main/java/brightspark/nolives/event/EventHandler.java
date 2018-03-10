@@ -1,6 +1,6 @@
 package brightspark.nolives.event;
 
-import brightspark.nolives.Config;
+import brightspark.nolives.NLConfig;
 import brightspark.nolives.NoLives;
 import brightspark.nolives.livesData.PlayerLivesWorldData;
 import net.minecraft.entity.player.EntityPlayer;
@@ -77,7 +77,7 @@ public class EventHandler
         //Play death sound
         player.world.playSound(null, player.getPosition(), SoundEvents.ENTITY_PLAYER_DEATH, SoundCategory.PLAYERS, 1f, 0.5f);
 
-        if(!Config.banOnOutOfLives)
+        if(!NLConfig.banOnOutOfLives)
             player.setGameType(GameType.SPECTATOR);
         else if(server.isDedicatedServer())
         {
