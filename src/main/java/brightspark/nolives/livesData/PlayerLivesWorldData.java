@@ -1,5 +1,6 @@
 package brightspark.nolives.livesData;
 
+import brightspark.nolives.NLConfig;
 import brightspark.nolives.NoLives;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -57,8 +58,8 @@ public class PlayerLivesWorldData extends WorldSavedData
 
     public int getLives(UUID uuid)
     {
-        Integer lives = playerLives.putIfAbsent(uuid, 0);
-        return lives == null ? 0 : lives;
+        Integer lives = playerLives.putIfAbsent(uuid, NLConfig.defaultLives);
+        return lives == null ? NLConfig.defaultLives : lives;
     }
 
     public Map<UUID, Integer> getAllLives()

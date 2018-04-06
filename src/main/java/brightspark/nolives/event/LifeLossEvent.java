@@ -1,36 +1,57 @@
 package brightspark.nolives.event;
 
 import brightspark.nolives.livesData.PlayerLivesWorldData;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
+/**
+ * This event is fired when a player dies
+ */
 @Cancelable
 public class LifeLossEvent extends Event
 {
-    private PlayerLivesWorldData data;
-    private EntityPlayer player;
-    private int lives;
+    private final EntityPlayerMP player;
+    private final int currentLives;
+    private int livesToLose;
 
-    public LifeLossEvent(EntityPlayer player)
+    public LifeLossEvent(EntityPlayerMP player)
     {
-        data = PlayerLivesWorldData.get(player.world);
         this.player = player;
-        lives = data.getLives(player.getUniqueID());
+        PlayerLivesWorldData data = PlayerLivesWorldData.get(player.world);
+        currentLives = data.getLives(player.getUniqueID());
+        livesToLose = 1;
     }
 
-    public EntityPlayer getPlayer()
+    /**
+     * Gets the player that has just died
+     */
+    public EntityPlayerMP getPlayer()
     {
         return player;
     }
 
-    public int getLives()
+    /**
+     * Gets the amount of lives the player has before they died
+     */
+    public int getCurrentLives()
     {
-        return lives;
+        return currentLives;
     }
 
-    public void setLives(int amount)
+    /**
+     * Gets the number of lives the player will lose
+     */
+    public int getLivesToLose()
     {
-        data.setLives(player.getUniqueID(), amount);
+        return livesToLose;
+    }
+
+    /**
+     * Sets the number of lives the player will lose
+     */
+    public int setLivesToLose(int amount)
+    {
+        return livesToLose = amount;
     }
 }

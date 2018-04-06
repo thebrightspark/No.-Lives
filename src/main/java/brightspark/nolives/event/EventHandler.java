@@ -11,7 +11,6 @@ import net.minecraft.server.management.UserListBansEntry;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.GameType;
-import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -21,15 +20,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 @Mod.EventBusSubscriber
 public class EventHandler
 {
-    private static PlayerLivesWorldData playerLives;
     private static boolean deleteWorld = false;
-
-    private static PlayerLivesWorldData getPlayerLives(World world)
-    {
-        if(playerLives == null)
-            playerLives = PlayerLivesWorldData.get(world);
-        return playerLives;
-    }
 
     public static boolean shouldDeleteWorld()
     {
@@ -45,16 +36,20 @@ public class EventHandler
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onPlayerDeathSubLives(LivingDeathEvent event)
     {
-        //Reduce player lives on death and fire LifeLossEvent
-        if(!(event.getEntityLiving() instanceof EntityPlayerMP))
-            return;
-        EntityPlayer player = (EntityPlayer) event.getEntityLiving();
-        if(MinecraftForge.EVENT_BUS.post(new LifeLossEvent(player)))
-            return;
-        int livesLeft = getPlayerLives(player.world).subLives(player.getUniqueID(), 1);
-        String message = NoLives.getRandomDeathMessage();
-        if(message != null)
-            player.sendMessage(new TextComponentString(String.format(message, livesLeft)));
+        if(!(event.getEntityLiving() instanceof EntityPlayerMP)) return;
+        EntityPlayerMP player = (EntityPlayerMP) event.getEntityLiving();
+        LifeLossEvent lifeLossEvent = new LifeLossEvent(player);
+        if(!MinecraftForge.EVENT_BUS.post(lifeLossEvent))
+        {
+            int livesToLose = lifeLossEvent.getLivesToLose();
+            if(livesToLose > 0)
+            {
+                PlayerLivesWorldData data = PlayerLivesWorldData.get(player.world);
+                int livesLeft = data.subLives(player.getUniqueID(), livesToLose);
+                String message = NoLives.getRandomDeathMessage();
+                if(message != null) player.sendMessage(new TextComponentString(String.format(message, livesLeft)));
+            }
+        }
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -64,7 +59,7 @@ public class EventHandler
         if(!(event.getEntityLiving() instanceof EntityPlayer))
             return;
         EntityPlayer player = (EntityPlayer) event.getEntityLiving();
-        if(getPlayerLives(player.world).getLives(player.getUniqueID()) > 0)
+        if(PlayerLivesWorldData.get(player.world).getLives(player.getUniqueID()) > 0)
             return;
         MinecraftServer server = player.getServer();
         if(server == null)
