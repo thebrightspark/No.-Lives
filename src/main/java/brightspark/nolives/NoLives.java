@@ -74,7 +74,8 @@ public class NoLives
     @Mod.EventHandler
     public void serverStarting(FMLServerStartingEvent event)
     {
-        worldName = event.getServer().getWorldName();
+        if(event.getServer().isSinglePlayer())
+            worldName = event.getServer().getWorldName();
 
         event.registerServerCommand(new CommandLives());
     }
