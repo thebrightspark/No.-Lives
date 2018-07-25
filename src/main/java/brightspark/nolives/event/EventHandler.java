@@ -33,7 +33,7 @@ public class EventHandler
             return false;
     }
 
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    @SubscribeEvent(priority = EventPriority.HIGH)
     public static void onPlayerDeathSubLives(LivingDeathEvent event)
     {
         if(!(event.getEntityLiving() instanceof EntityPlayerMP)) return;
