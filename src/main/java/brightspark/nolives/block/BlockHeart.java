@@ -2,6 +2,7 @@ package brightspark.nolives.block;
 
 import brightspark.nolives.NLConfig;
 import brightspark.nolives.NoLives;
+import brightspark.nolives.event.LifeChangeEvent;
 import brightspark.nolives.livesData.PlayerLivesWorldData;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.SoundType;
@@ -9,6 +10,7 @@ import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
@@ -17,6 +19,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
 
 import javax.annotation.Nullable;
 
@@ -76,7 +79,11 @@ public class BlockHeart extends BlockContainer
     public void onBlockHarvested(World world, BlockPos pos, IBlockState state, EntityPlayer player)
     {
         if(!NLConfig.dropItemsFromBlock && !world.isRemote && !player.isCreative())
-            PlayerLivesWorldData.addLives(world, player, NLConfig.livesFromHeartBlock);
+        {
+            LifeChangeEvent.LifeGainEvent event = new LifeChangeEvent.LifeGainEvent((EntityPlayerMP) player, NLConfig.livesFromHeartBlock);
+            if(!MinecraftForge.EVENT_BUS.post(event) && event.getLivesToGain() > 0)
+                PlayerLivesWorldData.addLives(world, player, event.getLivesToGain());
+        }
         super.onBlockHarvested(world, pos, state, player);
     }
 }

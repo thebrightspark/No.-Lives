@@ -38,7 +38,7 @@ public class EventHandler
     {
         if(!(event.getEntityLiving() instanceof EntityPlayerMP)) return;
         EntityPlayerMP player = (EntityPlayerMP) event.getEntityLiving();
-        LifeLossEvent lifeLossEvent = new LifeLossEvent(player);
+        LifeChangeEvent.LifeLossEvent lifeLossEvent = new LifeChangeEvent.LifeLossEvent(player, 1);
         if(!MinecraftForge.EVENT_BUS.post(lifeLossEvent))
         {
             int livesToLose = lifeLossEvent.getLivesToLose();
