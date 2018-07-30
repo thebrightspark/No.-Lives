@@ -45,9 +45,19 @@ public class LifeChangeEvent extends Event
      */
     public static class LifeGainEvent extends LifeChangeEvent
     {
-        public LifeGainEvent(EntityPlayerMP player, int amount)
+        public enum GainType
+        {
+            ITEM,
+            BLOCK,
+            REGEN
+        }
+
+        private final GainType type;
+
+        public LifeGainEvent(EntityPlayerMP player, int amount, GainType type)
         {
             super(player, amount);
+            this.type = type;
         }
 
         /**
@@ -64,6 +74,17 @@ public class LifeChangeEvent extends Event
         public int setLivesToGain(int amount)
         {
             return this.amount = amount;
+        }
+
+        /**
+         * Gets the type of life gain this is
+         * ITEM  -> Life gained by right clicking a Heart item
+         * BLOCK -> Life gained by breaking a Heart block
+         * REGEN -> Life gained from regeneration
+         */
+        public GainType getGainType()
+        {
+            return type;
         }
     }
 

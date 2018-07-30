@@ -119,4 +119,9 @@ public class NoLives
     {
         return outOfLivesMessages.isEmpty() ? null : randValue(outOfLivesMessages);
     }
+
+    public static String lifeOrLives(int num)
+    {
+        return num == 1 ? "life" : "lives";
+    }
 }

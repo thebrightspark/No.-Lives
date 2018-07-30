@@ -1,6 +1,5 @@
 package brightspark.nolives.livesData;
 
-import brightspark.nolives.NLConfig;
 import brightspark.nolives.NoLives;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -18,7 +17,7 @@ import java.util.UUID;
 public class PlayerLivesWorldData extends WorldSavedData
 {
     private static final String NAME = NoLives.MOD_ID + "_playerLives";
-    private Map<UUID, Integer> playerLives = new HashMap<>();
+    private Map<UUID, PlayerLives> playerLives = new HashMap<>();
 
     public PlayerLivesWorldData()
     {
@@ -56,34 +55,50 @@ public class PlayerLivesWorldData extends WorldSavedData
         return false;
     }
 
-    public int getLives(UUID uuid)
+    public PlayerLives getPlayerLives(UUID uuid)
     {
-        Integer lives = playerLives.putIfAbsent(uuid, NLConfig.defaultLives);
-        return lives == null ? NLConfig.defaultLives : lives;
+        PlayerLives pl = playerLives.get(uuid);
+        if(pl == null)
+        {
+            pl = new PlayerLives();
+            playerLives.put(uuid, pl);
+        }
+        return pl;
     }
 
-    public Map<UUID, Integer> getAllLives()
+    public int getLives(UUID uuid)
+    {
+        return getPlayerLives(uuid).lives;
+    }
+
+    public Map<UUID, PlayerLives> getAllLives()
     {
         return playerLives;
     }
 
     public int setLives(UUID uuid, int lives)
     {
-        int newLives = Math.max(0, lives);
-        playerLives.put(uuid, newLives);
-        return newLives;
+        PlayerLives pl = getPlayerLives(uuid);
+        pl.lives = Math.max(0, lives);
+        return pl.lives;
     }
 
     public int addLives(UUID uuid, int amount)
     {
-        int current = getLives(uuid);
-        return setLives(uuid, current + amount);
+        PlayerLives pl = getPlayerLives(uuid);
+        pl.lives = Math.max(0, pl.lives + amount);
+        return pl.lives;
     }
 
     public int subLives(UUID uuid, int amount)
     {
-        int current = getLives(uuid);
-        return setLives(uuid, current - amount);
+        return addLives(uuid, -amount);
+    }
+
+    public void setLastRegenToCurrentTime(EntityPlayer player)
+    {
+        PlayerLives pl = getPlayerLives(player.getUniqueID());
+        pl.lastRegen = player.world.getTotalWorldTime();
     }
 
     @Override
@@ -94,8 +109,8 @@ public class PlayerLivesWorldData extends WorldSavedData
         {
             NBTTagCompound tag = tagList.getCompoundTagAt(i);
             UUID uuid = tag.getUniqueId("uuid");
-            int lives = tag.getInteger("lives");
-            playerLives.put(uuid, lives);
+            PlayerLives pl = new PlayerLives(tag.getCompoundTag("pl"));
+            playerLives.put(uuid, pl);
         }
     }
 
@@ -103,11 +118,11 @@ public class PlayerLivesWorldData extends WorldSavedData
     public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
         NBTTagList tagList = new NBTTagList();
-        for(Map.Entry<UUID, Integer> entry : playerLives.entrySet())
+        for(Map.Entry<UUID, PlayerLives> entry : playerLives.entrySet())
         {
             NBTTagCompound tag = new NBTTagCompound();
             tag.setUniqueId("uuid", entry.getKey());
-            tag.setInteger("lives", entry.getValue());
+            tag.setTag("pl", entry.getValue().serializeNBT());
             tagList.appendTag(tag);
         }
         nbt.setTag("playerLives", tagList);

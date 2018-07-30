@@ -2,6 +2,7 @@ package brightspark.nolives.event;
 
 import brightspark.nolives.NLConfig;
 import brightspark.nolives.NoLives;
+import brightspark.nolives.livesData.PlayerLives;
 import brightspark.nolives.livesData.PlayerLivesWorldData;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -11,11 +12,15 @@ import net.minecraft.server.management.UserListBansEntry;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.GameType;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 @Mod.EventBusSubscriber
 public class EventHandler
@@ -45,6 +50,8 @@ public class EventHandler
             if(livesToLose > 0)
             {
                 PlayerLivesWorldData data = PlayerLivesWorldData.get(player.world);
+                if(data == null) return;
+                data.setLastRegenToCurrentTime(player);
                 int livesLeft = data.subLives(player.getUniqueID(), livesToLose);
                 String message = NoLives.getRandomDeathMessage();
                 if(message != null) player.sendMessage(new TextComponentString(String.format(message, livesLeft)));
@@ -108,5 +115,55 @@ public class EventHandler
         UserListBansEntry banEntry = new UserListBansEntry(player.getGameProfile(), null, NoLives.MOD_NAME, null, "You ran out of lives!");
         server.getPlayerList().getBannedPlayers().addEntry(banEntry);
         player.connection.disconnect(new TextComponentString("You ran out of lives!"));
+    }
+
+    @SubscribeEvent()
+    public static void onServerTick(TickEvent.ServerTickEvent event)
+    {
+        if(event.phase == TickEvent.Phase.END)
+        {
+            MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+            if(server == null) return;
+            WorldServer overworld = server.getWorld(0);
+            long worldTime = overworld.getTotalWorldTime();
+            //Only check once every second
+            if(worldTime % 5 == 0)
+            {
+                PlayerLivesWorldData data = PlayerLivesWorldData.get(overworld);
+                if(data == null) return;
+                long lastRegenTime = worldTime - (NLConfig.regenSeconds * 20);
+                //For each player, give them a life if it's been long enough since their last
+                server.getPlayerList().getPlayers().forEach(player -> {
+                    if(!player.isDead)
+                    {
+                        PlayerLives pl = data.getPlayerLives(player.getUniqueID());
+                        if(pl.lives > 0 && pl.lives < NLConfig.regenMaxLives && pl.lastRegen <= lastRegenTime)
+                        {
+                            pl.lastRegen = worldTime;
+                            LifeChangeEvent.LifeGainEvent lifeGainEvent = new LifeChangeEvent.LifeGainEvent(player, 1, LifeChangeEvent.LifeGainEvent.GainType.REGEN);
+                            if(!MinecraftForge.EVENT_BUS.post(lifeGainEvent) && lifeGainEvent.getLivesToGain() > 0)
+                            {
+                                int gained = lifeGainEvent.getLivesToGain();
+                                pl.lives += gained;
+                                player.sendMessage(new TextComponentString(String.format("You've regenerated %s %s! You now have %s %s", gained, NoLives.lifeOrLives(gained), pl.lives, NoLives.lifeOrLives(pl.lives))));
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onClone(PlayerEvent.Clone event)
+    {
+        if(event.isWasDeath())
+        {
+            //Just need to reset the last regen time so they don't start regenerating lives as soon as they respawn
+            EntityPlayer player = event.getEntityPlayer();
+            PlayerLivesWorldData data = PlayerLivesWorldData.get(player.world);
+            if(data != null)
+                data.setLastRegenToCurrentTime(player);
+        }
     }
 }

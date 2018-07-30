@@ -1,5 +1,6 @@
 package brightspark.nolives.command;
 
+import brightspark.nolives.livesData.PlayerLives;
 import brightspark.nolives.livesData.PlayerLivesWorldData;
 import com.google.common.collect.Lists;
 import com.mojang.authlib.GameProfile;
@@ -79,14 +80,14 @@ public class CommandLives extends CommandBase
                     if(name.length() > longestName)
                         longestName = name.length();
                 longestName += 5;
-                Map<UUID, Integer> allLives = livesData.getAllLives();
-                for(Map.Entry<UUID, Integer> entry : allLives.entrySet())
+                Map<UUID, PlayerLives> allLives = livesData.getAllLives();
+                for(Map.Entry<UUID, PlayerLives> entry : allLives.entrySet())
                 {
                     UUID uuid = entry.getKey();
                     GameProfile profile = cache.getProfileByUUID(uuid);
                     if(profile == null) continue;
                     String name = profile.getName();
-                    String entryLives = entry.getValue().toString();
+                    String entryLives = String.valueOf(entry.getValue().lives);
                     String whitespace = genWhitespace(longestName - entryLives.length());
                     text.appendText("\n").appendText(name).appendText(whitespace).appendText(entryLives);
                 }
