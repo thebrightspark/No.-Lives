@@ -2,4 +2,11 @@ itemGroup.nolives=No. Lives
 item.heart.name=Heart
 tile.heart_block.name=Heart Block
 
-nolives.addLife=1 life added! You have %s lives remaining.
+nolives.message.kick=You ran out of lives!
+nolives.message.addLife=1 life added! You have %s %s remaining.
+nolives.message.regen=You've regenerated %s %s! You now have %s %s
+nolives.message.lives=You have %s %s left
+nolives.message.lives.list=Player lives:
+nolives.message.lives.add=Added %s %s. %s now has %s %s
+nolives.message.lives.sub=Subtracted %s %s. %s now has %s %s
+nolives.message.lives.set=Set %s %s for %s

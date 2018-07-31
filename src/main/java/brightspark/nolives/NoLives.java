@@ -7,9 +7,12 @@ import brightspark.nolives.item.ItemHeart;
 import brightspark.nolives.livesData.MessageGetLives;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
+import net.minecraft.command.ICommandSender;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
@@ -123,5 +126,15 @@ public class NoLives
     public static String lifeOrLives(int num)
     {
         return num == 1 ? "life" : "lives";
+    }
+
+    public static ITextComponent newMessageText(String key, Object... args)
+    {
+        return new TextComponentTranslation(MOD_ID + ".message." + key, args);
+    }
+
+    public static void sendMessageText(ICommandSender sender, String key, Object... args)
+    {
+        sender.sendMessage(newMessageText(key, args));
     }
 }

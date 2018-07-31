@@ -11,6 +11,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.UserListBansEntry;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.GameType;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
@@ -114,7 +115,7 @@ public class EventHandler
     {
         UserListBansEntry banEntry = new UserListBansEntry(player.getGameProfile(), null, NoLives.MOD_NAME, null, "You ran out of lives!");
         server.getPlayerList().getBannedPlayers().addEntry(banEntry);
-        player.connection.disconnect(new TextComponentString("You ran out of lives!"));
+        player.connection.disconnect(new TextComponentTranslation(NoLives.MOD_ID + ".message.kick"));
     }
 
     @SubscribeEvent()
@@ -145,7 +146,7 @@ public class EventHandler
                             {
                                 int gained = lifeGainEvent.getLivesToGain();
                                 pl.lives += gained;
-                                player.sendMessage(new TextComponentString(String.format("You've regenerated %s %s! You now have %s %s", gained, NoLives.lifeOrLives(gained), pl.lives, NoLives.lifeOrLives(pl.lives))));
+                                NoLives.sendMessageText(player, "regen", gained, NoLives.lifeOrLives(gained), pl.lives, NoLives.lifeOrLives(pl.lives));
                             }
                         }
                     }

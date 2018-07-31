@@ -1,5 +1,6 @@
 package brightspark.nolives.command;
 
+import brightspark.nolives.NoLives;
 import brightspark.nolives.livesData.PlayerLives;
 import brightspark.nolives.livesData.PlayerLivesWorldData;
 import com.google.common.collect.Lists;
@@ -11,6 +12,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerProfileCache;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
@@ -66,13 +68,14 @@ public class CommandLives extends CommandBase
         if(args.length == 0)
         {
             //Show user how many lives they have left
-            sender.sendMessage(new TextComponentString("You have " + livesData.getLives(player.getUniqueID()) + " lives left"));
+            int lives = livesData.getLives(player.getUniqueID());
+            NoLives.sendMessageText(sender, "lives", lives, NoLives.lifeOrLives(lives));
         }
         else if(canSenderUseCommand(sender, args[0]))
         {
             if(args[0].equalsIgnoreCase("list"))
             {
-                TextComponentString text = new TextComponentString("Player lives:");
+                ITextComponent text = NoLives.newMessageText("lives.list");
                 PlayerProfileCache cache = server.getPlayerProfileCache();
                 List<String> playerNames = Lists.newArrayList(cache.getUsernames());
                 int longestName = 0;
@@ -121,26 +124,26 @@ public class CommandLives extends CommandBase
                     throw new CommandException("Couldn't parse amount '" + args[argI] + "' as a number");
                 }
 
-                String response;
+                ITextComponent response;
                 int newAmount;
                 switch(args[0])
                 {
                     case "add": //Add lives
                         newAmount = livesData.addLives(uuidToChange, amount);
-                        response = String.format("Added %s lives. %s now has %s lives", amount, playerName, newAmount);
+                        response = NoLives.newMessageText("lives.add", amount, NoLives.lifeOrLives(amount), playerName, newAmount, NoLives.lifeOrLives(newAmount));
                         break;
                     case "sub": //Sub lives
                         newAmount = livesData.subLives(uuidToChange, amount);
-                        response = String.format("Subtracted %s lives. %s now has %s lives", amount, playerName, newAmount);
+                        response = NoLives.newMessageText("lives.sub", amount, NoLives.lifeOrLives(amount), playerName, newAmount, NoLives.lifeOrLives(newAmount));
                         break;
                     case "set": //Set lives
                         newAmount = livesData.setLives(uuidToChange, amount);
-                        response = String.format("Set %s lives for %s", newAmount, playerName);
+                        response = NoLives.newMessageText("lives.set", newAmount, NoLives.lifeOrLives(newAmount), playerName);
                         break;
                     default:
-                        response = getUsage(sender);
+                        response = new TextComponentString(getUsage(sender));
                 }
-                sender.sendMessage(new TextComponentString(response));
+                sender.sendMessage(response);
             }
         }
         else if(player.world.isRemote)
