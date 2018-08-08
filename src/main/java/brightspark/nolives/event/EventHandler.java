@@ -13,6 +13,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.GameType;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -39,10 +40,15 @@ public class EventHandler
             return false;
     }
 
+    private static boolean isHardcore(World world)
+    {
+        return world.getWorldInfo().isHardcoreModeEnabled();
+    }
+
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void onPlayerDeathSubLives(LivingDeathEvent event)
     {
-        if(!(event.getEntityLiving() instanceof EntityPlayerMP)) return;
+        if(!(event.getEntityLiving() instanceof EntityPlayerMP) || isHardcore(event.getEntityLiving().world)) return;
         EntityPlayerMP player = (EntityPlayerMP) event.getEntityLiving();
         LifeChangeEvent.LifeLossEvent lifeLossEvent = new LifeChangeEvent.LifeLossEvent(player, 1);
         if(!MinecraftForge.EVENT_BUS.post(lifeLossEvent))
@@ -64,7 +70,7 @@ public class EventHandler
     public static void onPlayerDeathKick(LivingDeathEvent event)
     {
         //Kick and ban the player if lives are 0 after a short delay (to allow for dropping of items and other things)
-        if(!(event.getEntityLiving() instanceof EntityPlayer))
+        if(!(event.getEntityLiving() instanceof EntityPlayer) || isHardcore(event.getEntityLiving().world))
             return;
         EntityPlayer player = (EntityPlayer) event.getEntityLiving();
         if(PlayerLivesWorldData.get(player.world).getLives(player.getUniqueID()) > 0)
@@ -121,10 +127,10 @@ public class EventHandler
     @SubscribeEvent()
     public static void onServerTick(TickEvent.ServerTickEvent event)
     {
-        if(event.phase == TickEvent.Phase.END)
+        if(NLConfig.regenSeconds > 0 && event.phase == TickEvent.Phase.END)
         {
             MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-            if(server == null) return;
+            if(server == null || server.isHardcore()) return;
             WorldServer overworld = server.getWorld(0);
             long worldTime = overworld.getTotalWorldTime();
             //Only check once every second

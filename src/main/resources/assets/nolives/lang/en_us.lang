@@ -10,3 +10,4 @@ nolives.message.lives.list=Player lives:
 nolives.message.lives.add=Added %s %s. %s now has %s %s
 nolives.message.lives.sub=Subtracted %s %s. %s now has %s %s
 nolives.message.lives.set=Set %s %s for %s
+nolives.message.lives.hardcore=Cannot use commands in Hardcore!

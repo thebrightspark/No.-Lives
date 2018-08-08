@@ -60,6 +60,11 @@ public class CommandLives extends CommandBase
     @Override
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
+        if(server.isHardcore())
+        {
+            NoLives.sendMessageText(sender, "lives.hardcore");
+            return;
+        }
         if(!(sender instanceof EntityPlayer)) return;
         EntityPlayer player = (EntityPlayer) sender;
         PlayerLivesWorldData livesData = PlayerLivesWorldData.get(player.world);
