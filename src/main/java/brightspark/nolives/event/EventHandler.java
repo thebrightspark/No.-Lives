@@ -154,6 +154,7 @@ public class EventHandler
                                 pl.lives += gained;
                                 NoLives.sendMessageText(player, "regen", gained, NoLives.lifeOrLives(gained), pl.lives, NoLives.lifeOrLives(pl.lives));
                             }
+                            data.markDirty();
                         }
                     }
                 });

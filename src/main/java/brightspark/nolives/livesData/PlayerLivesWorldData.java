@@ -80,6 +80,7 @@ public class PlayerLivesWorldData extends WorldSavedData
     {
         PlayerLives pl = getPlayerLives(uuid);
         pl.lives = Math.max(0, lives);
+        markDirty();
         return pl.lives;
     }
 
@@ -87,6 +88,7 @@ public class PlayerLivesWorldData extends WorldSavedData
     {
         PlayerLives pl = getPlayerLives(uuid);
         pl.lives = Math.max(0, pl.lives + amount);
+        markDirty();
         return pl.lives;
     }
 
@@ -99,6 +101,7 @@ public class PlayerLivesWorldData extends WorldSavedData
     {
         PlayerLives pl = getPlayerLives(player.getUniqueID());
         pl.lastRegen = player.world.getTotalWorldTime();
+        markDirty();
     }
 
     @Override
