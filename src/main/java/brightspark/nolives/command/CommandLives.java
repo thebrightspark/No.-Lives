@@ -13,9 +13,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerProfileCache;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.server.command.CommandTreeBase;
+import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -23,7 +22,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class CommandLives extends CommandBase {
+public class CommandLives extends CommandTreeBase {
+	public CommandLives() {
+		addSubcommand(new CommandList());
+		addSubcommand(new CommandAdd());
+		addSubcommand(new CommandSub());
+		addSubcommand(new CommandSet());
+	}
+
 	@Override
 	public String getName() {
 		return "lives";
@@ -31,121 +37,194 @@ public class CommandLives extends CommandBase {
 
 	@Override
 	public String getUsage(ICommandSender sender) {
-		return "lives [list]\n" +
-			"lives <add|sub|set> [playerName] <amount>";
+		return "nolives.command.lives.usage";
 	}
 
 	@Override
-	public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
-		return true;
-	}
-
-	private boolean canSenderUseCommand(ICommandSender sender, String commandVariant) {
-		return commandVariant.equalsIgnoreCase("list") || sender.canUseCommand(2, getName());
-	}
-
-	private String genWhitespace(int length) {
-		StringBuilder sb = new StringBuilder(length);
-		for (int i = 0; i < length; i++)
-			sb.append(" ");
-		return sb.toString();
+	public int getRequiredPermissionLevel() {
+		return 0;
 	}
 
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-		if (server.isHardcore()) {
-			NoLives.sendMessageText(sender, "lives.hardcore");
-			return;
-		}
-		if (!(sender instanceof EntityPlayer)) return;
-		EntityPlayer player = (EntityPlayer) sender;
-		PlayerLivesWorldData livesData = PlayerLivesWorldData.get(player.world);
-		if (livesData == null) throw new CommandException("Failed to get Player Lives data from the world");
-
 		if (args.length == 0) {
 			//Show user how many lives they have left
+			if (!(sender instanceof EntityPlayer)) return;
+			EntityPlayer player = (EntityPlayer) sender;
+			PlayerLivesWorldData livesData = getLivesData(player);
 			int lives = livesData.getLives(player.getUniqueID());
 			NoLives.sendMessageText(sender, "lives", lives, NoLives.lifeOrLives(lives));
-		} else if (canSenderUseCommand(sender, args[0])) {
-			if (args[0].equalsIgnoreCase("list")) {
-				ITextComponent text = NoLives.newMessageText("lives.list");
-				PlayerProfileCache cache = server.getPlayerProfileCache();
-				List<String> playerNames = Lists.newArrayList(cache.getUsernames());
-				int longestName = 0;
-				for (String name : playerNames)
-					if (name.length() > longestName)
-						longestName = name.length();
-				longestName += 5;
-				Map<UUID, PlayerLives> allLives = livesData.getAllLives();
-				for (Map.Entry<UUID, PlayerLives> entry : allLives.entrySet()) {
-					UUID uuid = entry.getKey();
-					GameProfile profile = cache.getProfileByUUID(uuid);
-					if (profile == null) continue;
-					String name = profile.getName();
-					String entryLives = String.valueOf(entry.getValue().lives);
-					String whitespace = genWhitespace(longestName - entryLives.length());
-					text.appendText("\n").appendText(name).appendText(whitespace).appendText(entryLives);
-				}
-				sender.sendMessage(text);
-			} else if (args.length > 1) {
-				UUID uuidToChange = player.getUniqueID();
-				String playerName = player.getDisplayNameString();
-				if (args.length >= 3) {
-					//Get UUID for player mentioned
-					GameProfile profile = server.getPlayerProfileCache().getGameProfileForUsername(args[1]);
-					if (profile == null)
-						throw new CommandException("Couldn't find player '" + args[1] + "'");
-					else {
-						uuidToChange = profile.getId();
-						playerName = profile.getName();
-					}
-				}
-				//Get amount argument
-				int amount;
-				int argI = args.length >= 3 ? 2 : 1;
-				try {
-					amount = Integer.parseInt(args[argI]);
-				} catch (NumberFormatException e) {
-					throw new CommandException("Couldn't parse amount '" + args[argI] + "' as a number");
-				}
-
-				ITextComponent response;
-				int newAmount;
-				switch (args[0]) {
-					case "add": //Add lives
-						newAmount = livesData.addLives(uuidToChange, amount);
-						response = NoLives.newMessageText("lives.add", amount, NoLives.lifeOrLives(amount), playerName, newAmount, NoLives.lifeOrLives(newAmount));
-						break;
-					case "sub": //Sub lives
-						newAmount = livesData.subLives(uuidToChange, amount);
-						response = NoLives.newMessageText("lives.sub", amount, NoLives.lifeOrLives(amount), playerName, newAmount, NoLives.lifeOrLives(newAmount));
-						break;
-					case "set": //Set lives
-						newAmount = livesData.setLives(uuidToChange, amount);
-						response = NoLives.newMessageText("lives.set", newAmount, NoLives.lifeOrLives(newAmount), playerName);
-						break;
-					default:
-						response = new TextComponentString(getUsage(sender));
-				}
-				sender.sendMessage(response);
+		} else {
+			if (server.isHardcore()) {
+				NoLives.sendMessageText(sender, "lives.hardcore");
+				return;
 			}
-		} else if (player.world.isRemote) {
-			//Does not have permission to use command
-			TextComponentTranslation message = new TextComponentTranslation("commands.generic.permission");
-			message.getStyle().setColor(TextFormatting.RED);
-			sender.sendMessage(message);
+			super.execute(server, sender, args);
 		}
 	}
 
-	@Override
-	public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos targetPos) {
-		switch (args.length) {
-			case 1:
-				return getListOfStringsMatchingLastWord(args, "list", "add", "sub", "set");
-			case 2:
-				return getListOfStringsMatchingLastWord(args, server.getPlayerProfileCache().getUsernames());
-			default:
-				return Collections.emptyList();
+	private PlayerLivesWorldData getLivesData(EntityPlayer player) throws CommandException {
+		PlayerLivesWorldData livesData = PlayerLivesWorldData.get(player.world);
+		if (livesData == null) throw new CommandException("Failed to get Player Lives data from the world");
+		return livesData;
+	}
+
+	private Pair<UUID, String> getPlayerUuidAndName(MinecraftServer server, String[] args, EntityPlayer player) throws CommandException {
+		UUID uuidToChange = player.getUniqueID();
+		String playerName = player.getDisplayNameString();
+		if (args.length >= 2) {
+			//Get UUID and name for player mentioned
+			GameProfile profile = server.getPlayerProfileCache().getGameProfileForUsername(args[1]);
+			if (profile == null)
+				throw new CommandException("Couldn't find player '" + args[1] + "'");
+			else {
+				uuidToChange = profile.getId();
+				playerName = profile.getName();
+			}
+		}
+		return Pair.of(uuidToChange, playerName);
+	}
+
+	private int getAmount(String[] args) throws CommandException {
+		//Get amount argument
+		String amountArg = args[args.length >= 2 ? 1 : 0];
+		try {
+			return Integer.parseInt(amountArg);
+		} catch (NumberFormatException e) {
+			throw new CommandException("Couldn't parse amount '" + amountArg + "' as a number");
+		}
+	}
+
+	private class CommandList extends CommandBase {
+		@Override
+		public String getName() {
+			return "list";
+		}
+
+		@Override
+		public String getUsage(ICommandSender sender) {
+			return "lives list";
+		}
+
+		@Override
+		public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+			if (!(sender instanceof EntityPlayer)) return;
+			EntityPlayer player = (EntityPlayer) sender;
+			PlayerLivesWorldData livesData = getLivesData(player);
+
+			ITextComponent text = NoLives.newMessageText("lives.list");
+			PlayerProfileCache cache = server.getPlayerProfileCache();
+			List<String> playerNames = Lists.newArrayList(cache.getUsernames());
+			int longestName = 0;
+			for (String name : playerNames)
+				if (name.length() > longestName)
+					longestName = name.length();
+			longestName += 5;
+			Map<UUID, PlayerLives> allLives = livesData.getAllLives();
+			for (Map.Entry<UUID, PlayerLives> entry : allLives.entrySet()) {
+				UUID uuid = entry.getKey();
+				GameProfile profile = cache.getProfileByUUID(uuid);
+				if (profile == null) continue;
+				String name = profile.getName();
+				String entryLives = String.valueOf(entry.getValue().lives);
+				String whitespace = genWhitespace(longestName - entryLives.length());
+				text.appendText("\n").appendText(name).appendText(whitespace).appendText(entryLives);
+			}
+			sender.sendMessage(text);
+		}
+
+		private String genWhitespace(int length) {
+			StringBuilder sb = new StringBuilder(length);
+			for (int i = 0; i < length; i++)
+				sb.append(" ");
+			return sb.toString();
+		}
+	}
+
+	private class CommandAdd extends CommandBase {
+		@Override
+		public String getName() {
+			return "add";
+		}
+
+		@Override
+		public String getUsage(ICommandSender sender) {
+			return "nolives.command.lives.add.usage";
+		}
+
+		@Override
+		public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+			if (!(sender instanceof EntityPlayer)) return;
+			EntityPlayer player = (EntityPlayer) sender;
+			PlayerLivesWorldData livesData = getLivesData(player);
+			Pair<UUID, String> targetPlayer = getPlayerUuidAndName(server, args, player);
+			int amount = getAmount(args);
+
+			int newAmount = livesData.addLives(targetPlayer.getLeft(), amount);
+			sender.sendMessage(NoLives.newMessageText("lives.add", amount, NoLives.lifeOrLives(amount), targetPlayer.getRight(), newAmount, NoLives.lifeOrLives(newAmount)));
+		}
+
+		@Override
+		public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos targetPos) {
+			return args.length == 1 ? getListOfStringsMatchingLastWord(args, server.getPlayerProfileCache().getUsernames()) : Collections.emptyList();
+		}
+	}
+
+	private class CommandSub extends CommandBase {
+		@Override
+		public String getName() {
+			return "sub";
+		}
+
+		@Override
+		public String getUsage(ICommandSender sender) {
+			return "nolives.command.lives.sub.usage";
+		}
+
+		@Override
+		public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+			if (!(sender instanceof EntityPlayer)) return;
+			EntityPlayer player = (EntityPlayer) sender;
+			PlayerLivesWorldData livesData = getLivesData(player);
+			Pair<UUID, String> targetPlayer = getPlayerUuidAndName(server, args, player);
+			int amount = getAmount(args);
+
+			int newAmount = livesData.subLives(targetPlayer.getLeft(), amount);
+			sender.sendMessage(NoLives.newMessageText("lives.sub", amount, NoLives.lifeOrLives(amount), targetPlayer.getRight(), newAmount, NoLives.lifeOrLives(newAmount)));
+		}
+
+		@Override
+		public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos targetPos) {
+			return args.length == 1 ? getListOfStringsMatchingLastWord(args, server.getPlayerProfileCache().getUsernames()) : Collections.emptyList();
+		}
+	}
+
+	private class CommandSet extends CommandBase {
+		@Override
+		public String getName() {
+			return "set";
+		}
+
+		@Override
+		public String getUsage(ICommandSender sender) {
+			return "nolives.command.lives.set.usage";
+		}
+
+		@Override
+		public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+			if (!(sender instanceof EntityPlayer)) return;
+			EntityPlayer player = (EntityPlayer) sender;
+			PlayerLivesWorldData livesData = getLivesData(player);
+			Pair<UUID, String> targetPlayer = getPlayerUuidAndName(server, args, player);
+			int amount = getAmount(args);
+
+			int newAmount = livesData.setLives(targetPlayer.getLeft(), amount);
+			sender.sendMessage(NoLives.newMessageText("lives.set", newAmount, NoLives.lifeOrLives(newAmount), targetPlayer.getRight()));
+		}
+
+		@Override
+		public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos targetPos) {
+			return args.length == 1 ? getListOfStringsMatchingLastWord(args, server.getPlayerProfileCache().getUsernames()) : Collections.emptyList();
 		}
 	}
 }
