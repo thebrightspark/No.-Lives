@@ -18,41 +18,35 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @Mod.EventBusSubscriber
-public class RegistryHandler
-{
-    @SubscribeEvent
-    public static void registerItems(RegistryEvent.Register<Item> event)
-    {
-        event.getRegistry().register(NoLives.itemHeart);
-        event.getRegistry().register(new ItemBlock(NoLives.blockHeart).setRegistryName(NoLives.blockHeart.getRegistryName()));
-    }
+public class RegistryHandler {
+	@SubscribeEvent
+	public static void registerItems(RegistryEvent.Register<Item> event) {
+		event.getRegistry().register(NoLives.itemHeart);
+		event.getRegistry().register(new ItemBlock(NoLives.blockHeart).setRegistryName(NoLives.blockHeart.getRegistryName()));
+	}
 
-    @SubscribeEvent
-    public static void registerBlocks(RegistryEvent.Register<Block> event)
-    {
-        event.getRegistry().register(NoLives.blockHeart);
-        GameRegistry.registerTileEntity(TileHeart.class, NoLives.blockHeart.getRegistryName().getResourcePath());
-    }
+	@SubscribeEvent
+	public static void registerBlocks(RegistryEvent.Register<Block> event) {
+		event.getRegistry().register(NoLives.blockHeart);
+		GameRegistry.registerTileEntity(TileHeart.class, NoLives.blockHeart.getRegistryName().getResourcePath());
+	}
 
-    @SideOnly(Side.CLIENT)
-    @SubscribeEvent
-    public static void registerModels(ModelRegistryEvent event)
-    {
-        regModel(NoLives.itemHeart);
-        regModel(NoLives.blockHeart);
+	@SideOnly(Side.CLIENT)
+	@SubscribeEvent
+	public static void registerModels(ModelRegistryEvent event) {
+		regModel(NoLives.itemHeart);
+		regModel(NoLives.blockHeart);
 
-        ClientRegistry.bindTileEntitySpecialRenderer(TileHeart.class, new TESRHeart());
-    }
+		ClientRegistry.bindTileEntitySpecialRenderer(TileHeart.class, new TESRHeart());
+	}
 
-    @SideOnly(Side.CLIENT)
-    private static void regModel(Block block)
-    {
-        regModel(Item.getItemFromBlock(block));
-    }
+	@SideOnly(Side.CLIENT)
+	private static void regModel(Block block) {
+		regModel(Item.getItemFromBlock(block));
+	}
 
-    @SideOnly(Side.CLIENT)
-    private static void regModel(Item item)
-    {
-        ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(item.getRegistryName(), "inventory"));
-    }
+	@SideOnly(Side.CLIENT)
+	private static void regModel(Item item) {
+		ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(item.getRegistryName(), "inventory"));
+	}
 }

@@ -23,67 +23,57 @@ import net.minecraftforge.common.MinecraftForge;
 
 import javax.annotation.Nullable;
 
-public class BlockHeart extends BlockContainer
-{
-    public BlockHeart()
-    {
-        super(Material.ROCK, MapColor.RED);
-        setRegistryName("heart_block");
-        setUnlocalizedName("heart_block");
-        setCreativeTab(NoLives.tab);
-        setHardness(2f);
-        setResistance(12f);
-        setSoundType(SoundType.STONE);
-        translucent = true;
-    }
+public class BlockHeart extends BlockContainer {
+	public BlockHeart() {
+		super(Material.ROCK, MapColor.RED);
+		setRegistryName("heart_block");
+		setUnlocalizedName("heart_block");
+		setCreativeTab(NoLives.tab);
+		setHardness(2f);
+		setResistance(12f);
+		setSoundType(SoundType.STONE);
+		translucent = true;
+	}
 
-    @Nullable
-    @Override
-    public TileEntity createNewTileEntity(World world, int meta)
-    {
-        return new TileHeart();
-    }
+	@Nullable
+	@Override
+	public TileEntity createNewTileEntity(World world, int meta) {
+		return new TileHeart();
+	}
 
-    @Override
-    public BlockRenderLayer getBlockLayer()
-    {
-        return BlockRenderLayer.TRANSLUCENT;
-    }
+	@Override
+	public BlockRenderLayer getBlockLayer() {
+		return BlockRenderLayer.TRANSLUCENT;
+	}
 
-    @Override
-    public EnumBlockRenderType getRenderType(IBlockState state)
-    {
-        return EnumBlockRenderType.MODEL;
-    }
+	@Override
+	public EnumBlockRenderType getRenderType(IBlockState state) {
+		return EnumBlockRenderType.MODEL;
+	}
 
-    @Override
-    public boolean isOpaqueCube(IBlockState state)
-    {
-        return false;
-    }
+	@Override
+	public boolean isOpaqueCube(IBlockState state) {
+		return false;
+	}
 
-    @Override
-    public boolean canSilkHarvest(World world, BlockPos pos, IBlockState state, EntityPlayer player)
-    {
-        return NLConfig.canSilkHarvestBlock;
-    }
+	@Override
+	public boolean canSilkHarvest(World world, BlockPos pos, IBlockState state, EntityPlayer player) {
+		return NLConfig.canSilkHarvestBlock;
+	}
 
-    @Override
-    public void getDrops(NonNullList<ItemStack> drops, IBlockAccess world, BlockPos pos, IBlockState state, int fortune)
-    {
-        if(NLConfig.dropItemsFromBlock)
-            drops.add(new ItemStack(NoLives.itemHeart, NLConfig.livesFromHeartBlock));
-    }
+	@Override
+	public void getDrops(NonNullList<ItemStack> drops, IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
+		if (NLConfig.dropItemsFromBlock)
+			drops.add(new ItemStack(NoLives.itemHeart, NLConfig.livesFromHeartBlock));
+	}
 
-    @Override
-    public void onBlockHarvested(World world, BlockPos pos, IBlockState state, EntityPlayer player)
-    {
-        if(!NLConfig.dropItemsFromBlock && !world.isRemote && !player.isCreative())
-        {
-            LifeChangeEvent.LifeGainEvent event = new LifeChangeEvent.LifeGainEvent((EntityPlayerMP) player, NLConfig.livesFromHeartBlock, LifeChangeEvent.LifeGainEvent.GainType.BLOCK);
-            if(!MinecraftForge.EVENT_BUS.post(event) && event.getLivesToGain() > 0)
-                PlayerLivesWorldData.addLives(world, player, event.getLivesToGain());
-        }
-        super.onBlockHarvested(world, pos, state, player);
-    }
+	@Override
+	public void onBlockHarvested(World world, BlockPos pos, IBlockState state, EntityPlayer player) {
+		if (!NLConfig.dropItemsFromBlock && !world.isRemote && !player.isCreative()) {
+			LifeChangeEvent.LifeGainEvent event = new LifeChangeEvent.LifeGainEvent((EntityPlayerMP) player, NLConfig.livesFromHeartBlock, LifeChangeEvent.LifeGainEvent.GainType.BLOCK);
+			if (!MinecraftForge.EVENT_BUS.post(event) && event.getLivesToGain() > 0)
+				PlayerLivesWorldData.addLives(world, player, event.getLivesToGain());
+		}
+		super.onBlockHarvested(world, pos, state, player);
+	}
 }
