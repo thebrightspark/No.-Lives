@@ -18,3 +18,4 @@ nolives.command.lives.add.usage="/lives add [playerName] <amount>"
 nolives.command.lives.sub.usage="/lives sub [playerName] <amount>"
 nolives.command.lives.set.usage="/lives set [playerName] <amount>"
 nolives.command.lives.fail.data=Failed to get Player Lives data from the world
+nolives.command.lives.fail.player=You must be a player to use this command
