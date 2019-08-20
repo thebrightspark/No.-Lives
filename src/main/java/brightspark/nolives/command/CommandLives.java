@@ -80,7 +80,7 @@ public class CommandLives extends CommandTreeBase {
 		UUID uuidToChange;
 		String playerName;
 		if (args.length >= 2) {
-			String target = args[1];
+			String target = args[0];
 			try {
 				EntityPlayer player = getPlayer(server, sender, target);
 				uuidToChange = player.getUniqueID();
