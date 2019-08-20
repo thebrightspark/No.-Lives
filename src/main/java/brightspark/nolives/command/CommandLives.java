@@ -53,20 +53,20 @@ public class CommandLives extends CommandTreeBase {
 
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-		if (args.length == 0) {
-			//Show user how many lives they have left
-			if (!(sender instanceof EntityPlayer)) return;
-			EntityPlayer player = (EntityPlayer) sender;
-			PlayerLivesWorldData livesData = getLivesData(player);
-			int lives = livesData.getLives(player.getUniqueID());
-			NoLives.sendMessageText(sender, "lives", lives, NoLives.lifeOrLives(lives));
-		} else {
-			if (server.isHardcore()) {
-				NoLives.sendMessageText(sender, "lives.hardcore");
-				return;
-			}
+		if (args.length == 0)
+			showLives(sender);
+		else if (server.isHardcore())
+			NoLives.sendMessageText(sender, "lives.hardcore");
+		else
 			super.execute(server, sender, args);
-		}
+	}
+
+	private void showLives(ICommandSender sender) throws CommandException {
+		if (!(sender instanceof EntityPlayer)) return;
+		EntityPlayer player = (EntityPlayer) sender;
+		PlayerLivesWorldData livesData = getLivesData(player);
+		int lives = livesData.getLives(player.getUniqueID());
+		NoLives.sendMessageText(sender, "lives", lives, NoLives.lifeOrLives(lives));
 	}
 
 	private PlayerLivesWorldData getLivesData(EntityPlayer player) throws CommandException {
