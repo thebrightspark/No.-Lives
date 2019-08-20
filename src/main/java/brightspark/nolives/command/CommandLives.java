@@ -110,6 +110,11 @@ public class CommandLives extends CommandTreeBase {
 		}
 
 		@Override
+		public int getRequiredPermissionLevel() {
+			return 0;
+		}
+
+		@Override
 		public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 			if (!(sender instanceof EntityPlayer)) return;
 			EntityPlayer player = (EntityPlayer) sender;
@@ -156,6 +161,11 @@ public class CommandLives extends CommandTreeBase {
 		}
 
 		@Override
+		public int getRequiredPermissionLevel() {
+			return 2;
+		}
+
+		@Override
 		public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 			if (!(sender instanceof EntityPlayer)) return;
 			EntityPlayer player = (EntityPlayer) sender;
@@ -185,6 +195,11 @@ public class CommandLives extends CommandTreeBase {
 		}
 
 		@Override
+		public int getRequiredPermissionLevel() {
+			return 2;
+		}
+
+		@Override
 		public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 			if (!(sender instanceof EntityPlayer)) return;
 			EntityPlayer player = (EntityPlayer) sender;
@@ -211,6 +226,11 @@ public class CommandLives extends CommandTreeBase {
 		@Override
 		public String getUsage(ICommandSender sender) {
 			return "nolives.command.lives.set.usage";
+		}
+
+		@Override
+		public int getRequiredPermissionLevel() {
+			return 2;
 		}
 
 		@Override
