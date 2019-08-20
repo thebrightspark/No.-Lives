@@ -24,6 +24,9 @@ import java.util.UUID;
 
 public class CommandLives extends CommandTreeBase {
 	public CommandLives() {
+		// TODO: Create a GUI for the list instead? Use "/lives" to open the GUI
+		//  It can also show the current player's lives at the top too
+		//  Maybe even a search bar too?
 		addSubcommand(new CommandList());
 		addSubcommand(new CommandAdd());
 		addSubcommand(new CommandSub());
@@ -65,7 +68,7 @@ public class CommandLives extends CommandTreeBase {
 
 	private PlayerLivesWorldData getLivesData(EntityPlayer player) throws CommandException {
 		PlayerLivesWorldData livesData = PlayerLivesWorldData.get(player.world);
-		if (livesData == null) throw new CommandException("Failed to get Player Lives data from the world");
+		if (livesData == null) throw new CommandException("nolives.command.lives.fail.data");
 		return livesData;
 	}
 
@@ -76,7 +79,7 @@ public class CommandLives extends CommandTreeBase {
 			//Get UUID and name for player mentioned
 			GameProfile profile = server.getPlayerProfileCache().getGameProfileForUsername(args[1]);
 			if (profile == null)
-				throw new CommandException("Couldn't find player '" + args[1] + "'");
+				throw new CommandException("nolives.command.lives.fail.player", args[1]);
 			else {
 				uuidToChange = profile.getId();
 				playerName = profile.getName();
@@ -91,7 +94,7 @@ public class CommandLives extends CommandTreeBase {
 		try {
 			return Integer.parseInt(amountArg);
 		} catch (NumberFormatException e) {
-			throw new CommandException("Couldn't parse amount '" + amountArg + "' as a number");
+			throw new CommandException("nolives.command.lives.fail.amount", amountArg);
 		}
 	}
 
