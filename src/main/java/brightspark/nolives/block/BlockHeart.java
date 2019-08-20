@@ -27,7 +27,7 @@ public class BlockHeart extends BlockContainer {
 	public BlockHeart() {
 		super(Material.ROCK, MapColor.RED);
 		setRegistryName("heart_block");
-		setUnlocalizedName("heart_block");
+		setTranslationKey("heart_block");
 		setCreativeTab(NoLives.tab);
 		setHardness(2f);
 		setResistance(12f);
@@ -42,7 +42,7 @@ public class BlockHeart extends BlockContainer {
 	}
 
 	@Override
-	public BlockRenderLayer getBlockLayer() {
+	public BlockRenderLayer getRenderLayer() {
 		return BlockRenderLayer.TRANSLUCENT;
 	}
 

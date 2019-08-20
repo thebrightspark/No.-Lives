@@ -16,7 +16,7 @@ import net.minecraftforge.common.MinecraftForge;
 
 public class ItemHeart extends Item {
 	public ItemHeart() {
-		setUnlocalizedName("heart");
+		setTranslationKey("heart");
 		setRegistryName("heart");
 		setCreativeTab(NoLives.tab);
 	}

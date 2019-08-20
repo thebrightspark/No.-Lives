@@ -43,7 +43,7 @@ public class NoLives {
 	public static SimpleNetworkWrapper NETWORK;
 	public static CreativeTabs tab = new CreativeTabs(MOD_ID) {
 		@Override
-		public ItemStack getTabIconItem() {
+		public ItemStack createIcon() {
 			return new ItemStack(itemHeart);
 		}
 	};

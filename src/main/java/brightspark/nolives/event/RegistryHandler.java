@@ -17,6 +17,7 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+@SuppressWarnings("ConstantConditions")
 @Mod.EventBusSubscriber
 public class RegistryHandler {
 	@SubscribeEvent
@@ -28,7 +29,7 @@ public class RegistryHandler {
 	@SubscribeEvent
 	public static void registerBlocks(RegistryEvent.Register<Block> event) {
 		event.getRegistry().register(NoLives.blockHeart);
-		GameRegistry.registerTileEntity(TileHeart.class, NoLives.blockHeart.getRegistryName().getResourcePath());
+		GameRegistry.registerTileEntity(TileHeart.class, NoLives.blockHeart.getRegistryName());
 	}
 
 	@SideOnly(Side.CLIENT)
