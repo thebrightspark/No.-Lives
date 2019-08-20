@@ -15,6 +15,7 @@ import net.minecraft.server.management.PlayerProfileCache;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.server.command.CommandTreeBase;
+import net.minecraftforge.server.command.CommandTreeHelp;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
@@ -32,6 +33,7 @@ public class CommandLives extends CommandTreeBase {
 		addSubcommand(new CommandAdd());
 		addSubcommand(new CommandSub());
 		addSubcommand(new CommandSet());
+		addSubcommand(new CommandTreeHelp(this));
 	}
 
 	@Override
