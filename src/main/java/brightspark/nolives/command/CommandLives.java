@@ -8,6 +8,7 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.command.PlayerNotFoundException;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerProfileCache;
@@ -72,17 +73,23 @@ public class CommandLives extends CommandTreeBase {
 		return livesData;
 	}
 
-	private Pair<UUID, String> getPlayerUuidAndName(MinecraftServer server, String[] args, EntityPlayer player) throws CommandException {
-		UUID uuidToChange = player.getUniqueID();
-		String playerName = player.getDisplayNameString();
+	private Pair<UUID, String> getPlayerUuidAndName(MinecraftServer server, EntityPlayer sender, String[] args) throws CommandException {
+		UUID uuidToChange = sender.getUniqueID();
+		String playerName = sender.getDisplayNameString();
 		if (args.length >= 2) {
-			//Get UUID and name for player mentioned
-			GameProfile profile = server.getPlayerProfileCache().getGameProfileForUsername(args[1]);
-			if (profile == null)
-				throw new CommandException("nolives.command.lives.fail.player", args[1]);
-			else {
-				uuidToChange = profile.getId();
-				playerName = profile.getName();
+			String target = args[1];
+			try {
+				EntityPlayer player = getPlayer(server, sender, target);
+				uuidToChange = player.getUniqueID();
+				playerName = player.getName();
+			} catch (PlayerNotFoundException e) {
+				GameProfile profile = server.getPlayerProfileCache().getGameProfileForUsername(target);
+				if (profile == null)
+					throw e;
+				else {
+					uuidToChange = profile.getId();
+					playerName = profile.getName();
+				}
 			}
 		}
 		return Pair.of(uuidToChange, playerName);
@@ -90,12 +97,7 @@ public class CommandLives extends CommandTreeBase {
 
 	private int getAmount(String[] args) throws CommandException {
 		//Get amount argument
-		String amountArg = args[args.length >= 2 ? 1 : 0];
-		try {
-			return Integer.parseInt(amountArg);
-		} catch (NumberFormatException e) {
-			throw new CommandException("nolives.command.lives.fail.amount", amountArg);
-		}
+		return parseInt(args[args.length >= 2 ? 1 : 0]);
 	}
 
 	private class CommandList extends CommandBase {
@@ -170,7 +172,7 @@ public class CommandLives extends CommandTreeBase {
 			if (!(sender instanceof EntityPlayer)) return;
 			EntityPlayer player = (EntityPlayer) sender;
 			PlayerLivesWorldData livesData = getLivesData(player);
-			Pair<UUID, String> targetPlayer = getPlayerUuidAndName(server, args, player);
+			Pair<UUID, String> targetPlayer = getPlayerUuidAndName(server, player, args);
 			int amount = getAmount(args);
 
 			int newAmount = livesData.addLives(targetPlayer.getLeft(), amount);
@@ -204,7 +206,7 @@ public class CommandLives extends CommandTreeBase {
 			if (!(sender instanceof EntityPlayer)) return;
 			EntityPlayer player = (EntityPlayer) sender;
 			PlayerLivesWorldData livesData = getLivesData(player);
-			Pair<UUID, String> targetPlayer = getPlayerUuidAndName(server, args, player);
+			Pair<UUID, String> targetPlayer = getPlayerUuidAndName(server, player, args);
 			int amount = getAmount(args);
 
 			int newAmount = livesData.subLives(targetPlayer.getLeft(), amount);
@@ -238,7 +240,7 @@ public class CommandLives extends CommandTreeBase {
 			if (!(sender instanceof EntityPlayer)) return;
 			EntityPlayer player = (EntityPlayer) sender;
 			PlayerLivesWorldData livesData = getLivesData(player);
-			Pair<UUID, String> targetPlayer = getPlayerUuidAndName(server, args, player);
+			Pair<UUID, String> targetPlayer = getPlayerUuidAndName(server, player, args);
 			int amount = getAmount(args);
 
 			int newAmount = livesData.setLives(targetPlayer.getLeft(), amount);
