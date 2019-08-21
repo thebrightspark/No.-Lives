@@ -105,7 +105,7 @@ public class EventHandler {
 		player.connection.disconnect(new TextComponentTranslation(NoLives.MOD_ID + ".message.kick"));
 	}
 
-	@SubscribeEvent()
+	@SubscribeEvent
 	public static void onServerTick(TickEvent.ServerTickEvent event) {
 		if (NLConfig.regenSeconds > 0 && event.phase == TickEvent.Phase.END) {
 			MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
@@ -146,5 +146,13 @@ public class EventHandler {
 			if (data != null)
 				data.setLastRegenToCurrentTime(player);
 		}
+	}
+
+	@SubscribeEvent
+	public static void onLogin(net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent event) {
+		// Ensure player lives data is created for the player
+		PlayerLivesWorldData data = PlayerLivesWorldData.get(event.player.world);
+		if (data != null)
+			data.getPlayerLives(event.player.getUniqueID());
 	}
 }

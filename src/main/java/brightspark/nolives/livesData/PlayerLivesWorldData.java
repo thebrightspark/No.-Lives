@@ -49,12 +49,10 @@ public class PlayerLivesWorldData extends WorldSavedData {
 	}
 
 	public PlayerLives getPlayerLives(UUID uuid) {
-		PlayerLives pl = playerLives.get(uuid);
-		if (pl == null) {
-			pl = new PlayerLives();
-			playerLives.put(uuid, pl);
-		}
-		return pl;
+		return playerLives.computeIfAbsent(uuid, uuid1 -> {
+			markDirty();
+			return new PlayerLives();
+		});
 	}
 
 	public int getLives(UUID uuid) {
