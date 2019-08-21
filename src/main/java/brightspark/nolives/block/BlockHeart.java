@@ -71,8 +71,10 @@ public class BlockHeart extends BlockContainer {
 	public void onBlockHarvested(World world, BlockPos pos, IBlockState state, EntityPlayer player) {
 		if (!NLConfig.dropItemsFromBlock && !world.isRemote && !player.isCreative()) {
 			LifeChangeEvent.LifeGainEvent event = new LifeChangeEvent.LifeGainEvent((EntityPlayerMP) player, NLConfig.livesFromHeartBlock, LifeChangeEvent.LifeGainEvent.GainType.BLOCK);
-			if (!MinecraftForge.EVENT_BUS.post(event) && event.getLivesToGain() > 0)
-				PlayerLivesWorldData.addLives(world, player, event.getLivesToGain());
+			if (!MinecraftForge.EVENT_BUS.post(event) && event.getLivesToGain() > 0) {
+				if (!PlayerLivesWorldData.addLives(world, player, event.getLivesToGain()))
+					NoLives.sendMessageText(player, "max", NLConfig.maxLives);
+			}
 		}
 		super.onBlockHarvested(world, pos, state, player);
 	}

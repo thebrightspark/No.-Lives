@@ -1,5 +1,6 @@
 package brightspark.nolives.command;
 
+import brightspark.nolives.NLConfig;
 import brightspark.nolives.NoLives;
 import brightspark.nolives.livesData.PlayerLives;
 import brightspark.nolives.livesData.PlayerLivesWorldData;
@@ -66,7 +67,10 @@ public class CommandLives extends CommandTreeBase {
 		EntityPlayer player = (EntityPlayer) sender;
 		PlayerLivesWorldData livesData = getLivesData(player);
 		int lives = livesData.getLives(player.getUniqueID());
-		NoLives.sendMessageText(sender, "lives", lives, NoLives.lifeOrLives(lives));
+		ITextComponent message = NoLives.newMessageText("lives", lives, NoLives.lifeOrLives(lives));
+		if (NLConfig.maxLives > 0)
+			message.appendSibling(NoLives.newMessageText("lives.max", NLConfig.maxLives));
+		sender.sendMessage(message);
 	}
 
 	private PlayerLivesWorldData getLivesData(ICommandSender sender) throws CommandException {

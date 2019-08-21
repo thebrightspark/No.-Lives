@@ -1,5 +1,6 @@
 package brightspark.nolives.livesData;
 
+import brightspark.nolives.NLConfig;
 import brightspark.nolives.NoLives;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -36,12 +37,19 @@ public class PlayerLivesWorldData extends WorldSavedData {
 		return instance;
 	}
 
+	/**
+	 * Helper method used by {@link brightspark.nolives.item.ItemHeart} and {@link brightspark.nolives.block.BlockHeart}
+	 */
 	public static boolean addLives(World world, EntityPlayer player, int amount) {
 		PlayerLivesWorldData data = get(world);
 		if (data != null) {
-			data.addLives(player.getUniqueID(), amount);
-			int lives = data.getLives(player.getUniqueID());
-			NoLives.sendMessageText(player, "addLife", lives, NoLives.lifeOrLives(lives));
+			UUID uuid = player.getUniqueID();
+			int curLives = data.getLives(uuid);
+			if (NLConfig.maxLives > 0 && curLives >= NLConfig.maxLives)
+				return false;
+			int lives = data.setLives(uuid, Math.min(NLConfig.maxLives, curLives + amount));
+			int diff = lives - curLives;
+			NoLives.sendMessageText(player, "addLife", diff, NoLives.lifeOrLives(diff), lives, NoLives.lifeOrLives(lives));
 			return true;
 		}
 		NoLives.logger.error("Unable to add life to player " + player.getDisplayNameString() + ". PlayerLivesWorldData was null!");

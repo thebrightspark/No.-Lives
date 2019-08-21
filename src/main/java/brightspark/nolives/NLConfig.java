@@ -7,11 +7,18 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @Config(modid = NoLives.MOD_ID)
-@Config.LangKey(NoLives.MOD_ID + ".title")
 public class NLConfig {
 	@Config.Comment("The amount of lives a new player will start with")
 	@Config.RangeInt(min = 1)
 	public static int defaultLives = 5;
+
+	@Config.Comment({
+		"The maximum number of lives a player can have - only limits gaining through Heart items or blocks (no limit for commands)",
+		"This value can be smaller than the defaultLives config",
+		"A value of 0 will mean there is no limit"
+	})
+	@Config.RangeInt(min = 0)
+	public static int maxLives = 0;
 
 	@Config.Comment("The amount of lives that will be given when a Heart item is used by a player")
 	@Config.RangeInt(min = 1)
@@ -22,11 +29,11 @@ public class NLConfig {
 	public static int livesFromHeartBlock = 1;
 
 	@Config.Comment({
-		"Set to true to drop heart items from the block, or false to just give the player who broke it the lives directly",
+		"Set to true to drop Heart items from the block, or false to just give the player who broke it the lives directly",
 		"The amount of items/lives is set by livesFromHeartBlock"})
 	public static boolean dropItemsFromBlock = false;
 
-	@Config.Comment("Whether you can use silk touch to pickup the heart block")
+	@Config.Comment("Whether you can use silk touch to pickup the Heart block")
 	public static boolean canSilkHarvestBlock = true;
 
 	@Config.Comment({

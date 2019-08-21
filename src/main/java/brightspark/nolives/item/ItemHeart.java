@@ -35,6 +35,8 @@ public class ItemHeart extends Item {
 				//Add life to player
 				if (PlayerLivesWorldData.addLives(world, player, event.getLivesToGain()))
 					stack.shrink(1);
+				else
+					NoLives.sendMessageText(player, "max", NLConfig.maxLives);
 		}
 		return new ActionResult<>(EnumActionResult.PASS, stack);
 	}
