@@ -19,10 +19,8 @@ import net.minecraftforge.server.command.CommandTreeHelp;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("NullableProblems")
 public class CommandLives extends CommandTreeBase {
@@ -113,6 +111,8 @@ public class CommandLives extends CommandTreeBase {
 	}
 
 	private class CommandList extends CommandBase {
+		private static final int MAX_PAGE_SIZE = 8;
+
 		@Override
 		public String getName() {
 			return "list";
@@ -130,30 +130,62 @@ public class CommandLives extends CommandTreeBase {
 
 		@Override
 		public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-			PlayerLivesWorldData livesData = getLivesData(sender);
-
-			ITextComponent text = NoLives.newMessageText("lives.list");
-			PlayerProfileCache cache = server.getPlayerProfileCache();
-			List<String> playerNames = Lists.newArrayList(cache.getUsernames());
-			int longestName = 0;
-			for (String name : playerNames)
-				if (name.length() > longestName)
-					longestName = name.length();
-			longestName += 5;
-			Map<UUID, PlayerLives> allLives = livesData.getAllLives();
-			for (Map.Entry<UUID, PlayerLives> entry : allLives.entrySet()) {
-				UUID uuid = entry.getKey();
-				GameProfile profile = cache.getProfileByUUID(uuid);
-				if (profile == null) continue;
-				String name = profile.getName();
-				String entryLives = String.valueOf(entry.getValue().lives);
-				String whitespace = genWhitespace(longestName - entryLives.length());
-				text.appendText("\n").appendText(name).appendText(whitespace).appendText(entryLives);
+			// Get list page num if provided
+			int page = -1;
+			if (args.length > 0) {
+				try {
+					page = Integer.parseInt(args[0]);
+				} catch (NumberFormatException ignored) { }
 			}
-			sender.sendMessage(text);
+			page = Math.max(0, page - 1);
+
+			Map<UUID, PlayerLives> livesMap = getLivesData(sender).getAllLives();
+			int livesSize = livesMap.size();
+			int pageMax = livesSize / (MAX_PAGE_SIZE + 1);
+			if (page * MAX_PAGE_SIZE > livesSize)
+				page = pageMax;
+
+			// Gets the data to display for the page
+			PlayerProfileCache cache = server.getPlayerProfileCache();
+			List<Pair<String, Integer>> data = livesMap.entrySet().stream().unordered()
+				.map(entry -> {
+					GameProfile profile = cache.getProfileByUUID(entry.getKey());
+					if (profile == null) return null;
+					return Pair.of(profile.getName(), entry.getValue().lives);
+				})
+				.filter(Objects::nonNull)
+				.sorted((o1, o2) -> {
+					// Reverse sort
+					int comparison = Integer.compare(o1.getRight(), o2.getRight());
+					if (comparison != 0) comparison *= -1;
+					return comparison;
+				})
+				.skip(page * MAX_PAGE_SIZE)
+				.limit(MAX_PAGE_SIZE)
+				.collect(Collectors.toList());
+
+			if (data.isEmpty()) {
+				// No data... this shouldn't happen!
+				throw new CommandException("nolives.command.lives.list.fail.data");
+			}
+
+			// Get the longest lives
+			int longestLives = Integer.toString(data.stream().mapToInt(Pair::getRight).max().getAsInt()).length();
+
+			// Create the message
+			ITextComponent message = NoLives.newMessageText("lives.list");
+			data.forEach(triple -> {
+				String lives = triple.getRight().toString();
+				message.appendText("\n" + genWhitespace(longestLives - lives.length()) + lives + " - " + triple.getLeft());
+			});
+			message.appendText("\nPage " + (page + 1) + " / " + (pageMax + 1));
+
+			sender.sendMessage(message);
 		}
 
 		private String genWhitespace(int length) {
+			if (length <= 0)
+				return "";
 			StringBuilder sb = new StringBuilder(length);
 			for (int i = 0; i < length; i++)
 				sb.append(" ");

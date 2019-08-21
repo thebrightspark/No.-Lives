@@ -13,9 +13,10 @@ nolives.message.lives.set=Set %s %s for %s
 nolives.message.lives.hardcore=Cannot use commands in Hardcore!
 
 nolives.command.lives.usage="/lives [subCommand]"
-nolives.command.lives.list.usage="/lives list"
+nolives.command.lives.list.usage="/lives list [page]"
 nolives.command.lives.add.usage="/lives add [playerName] <amount>"
 nolives.command.lives.sub.usage="/lives sub [playerName] <amount>"
 nolives.command.lives.set.usage="/lives set [playerName] <amount>"
 nolives.command.lives.fail.data=Failed to get Player Lives data from the world
 nolives.command.lives.fail.player=You must be a player to use this command
+nolives.command.lives.list.fail.data=Could not find any player lives data
