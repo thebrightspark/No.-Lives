@@ -4,6 +4,8 @@ import brightspark.nolives.NLConfig;
 import brightspark.nolives.NoLives;
 import brightspark.nolives.event.LifeChangeEvent;
 import brightspark.nolives.livesData.PlayerLivesWorldData;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
@@ -13,6 +15,9 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
+
+import javax.annotation.Nullable;
+import java.util.List;
 
 public class ItemHeart extends Item {
 	public ItemHeart() {
@@ -32,5 +37,10 @@ public class ItemHeart extends Item {
 					stack.shrink(1);
 		}
 		return new ActionResult<>(EnumActionResult.PASS, stack);
+	}
+
+	@Override
+	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
+		tooltip.add(I18n.format(getTranslationKey() + ".tooltip", NLConfig.livesFromHeartItem, NoLives.lifeOrLives(NLConfig.livesFromHeartItem)));
 	}
 }
