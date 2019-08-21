@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+@SuppressWarnings("NullableProblems")
 public class CommandLives extends CommandTreeBase {
 	public CommandLives() {
 		// TODO: Create a GUI for the list instead? Use "/lives" to open the GUI
