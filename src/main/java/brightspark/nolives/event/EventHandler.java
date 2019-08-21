@@ -40,7 +40,7 @@ public class EventHandler {
 		return world.getWorldInfo().isHardcoreModeEnabled();
 	}
 
-	@SubscribeEvent(priority = EventPriority.HIGH)
+	@SubscribeEvent(priority = EventPriority.LOW)
 	public static void onPlayerDeathSubLives(LivingDeathEvent event) {
 		if (!(event.getEntityLiving() instanceof EntityPlayerMP) || isHardcore(event.getEntityLiving().world)) return;
 		EntityPlayerMP player = (EntityPlayerMP) event.getEntityLiving();
