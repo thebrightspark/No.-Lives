@@ -3,7 +3,6 @@ package brightspark.nolives.command;
 import brightspark.nolives.NoLives;
 import brightspark.nolives.livesData.PlayerLives;
 import brightspark.nolives.livesData.PlayerLivesWorldData;
-import com.google.common.collect.Lists;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -14,6 +13,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerProfileCache;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.server.command.CommandTreeBase;
 import net.minecraftforge.server.command.CommandTreeHelp;
 import org.apache.commons.lang3.tuple.Pair;
@@ -174,9 +174,12 @@ public class CommandLives extends CommandTreeBase {
 
 			// Create the message
 			ITextComponent message = NoLives.newMessageText("lives.list");
+			message.getStyle().setColor(TextFormatting.GOLD);
 			data.forEach(triple -> {
 				String lives = triple.getRight().toString();
-				message.appendText("\n" + genWhitespace(longestLives - lives.length()) + lives + " - " + triple.getLeft());
+				message.appendText("\n" + TextFormatting.RED + genWhitespace(longestLives - lives.length()) + lives)
+					.appendText(TextFormatting.WHITE + " - ")
+					.appendText(TextFormatting.YELLOW + triple.getLeft());
 			});
 			message.appendText("\nPage " + (page + 1) + " / " + (pageMax + 1));
 
@@ -215,7 +218,7 @@ public class CommandLives extends CommandTreeBase {
 			Pair<UUID, String> targetPlayer = getPlayerUuidAndName(server, sender, args);
 			int amount = getAmount(args);
 			int newAmount = livesData.addLives(targetPlayer.getLeft(), amount);
-			sender.sendMessage(NoLives.newMessageText("lives.add", amount, NoLives.lifeOrLives(amount), targetPlayer.getRight(), newAmount, NoLives.lifeOrLives(newAmount)));
+			NoLives.sendMessageText(sender, "lives.add", amount, NoLives.lifeOrLives(amount), targetPlayer.getRight(), newAmount, NoLives.lifeOrLives(newAmount));
 		}
 
 		@Override
@@ -246,7 +249,7 @@ public class CommandLives extends CommandTreeBase {
 			Pair<UUID, String> targetPlayer = getPlayerUuidAndName(server, sender, args);
 			int amount = getAmount(args);
 			int newAmount = livesData.subLives(targetPlayer.getLeft(), amount);
-			sender.sendMessage(NoLives.newMessageText("lives.sub", amount, NoLives.lifeOrLives(amount), targetPlayer.getRight(), newAmount, NoLives.lifeOrLives(newAmount)));
+			NoLives.sendMessageText(sender, "lives.sub", amount, NoLives.lifeOrLives(amount), targetPlayer.getRight(), newAmount, NoLives.lifeOrLives(newAmount));
 		}
 
 		@Override
@@ -277,7 +280,7 @@ public class CommandLives extends CommandTreeBase {
 			Pair<UUID, String> targetPlayer = getPlayerUuidAndName(server, sender, args);
 			int amount = getAmount(args);
 			int newAmount = livesData.setLives(targetPlayer.getLeft(), amount);
-			sender.sendMessage(NoLives.newMessageText("lives.set", newAmount, NoLives.lifeOrLives(newAmount), targetPlayer.getRight()));
+			NoLives.sendMessageText(sender, "lives.set", newAmount, NoLives.lifeOrLives(newAmount), targetPlayer.getRight());
 		}
 
 		@Override
