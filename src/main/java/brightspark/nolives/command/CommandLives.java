@@ -173,7 +173,7 @@ public class CommandLives extends CommandTreeBase {
 			int longestLives = Integer.toString(data.stream().mapToInt(Pair::getRight).max().getAsInt()).length();
 
 			// Create the message
-			ITextComponent message = NoLives.newMessageText("lives.list");
+			ITextComponent message = NoLives.newMessageText("lives.list.title");
 			message.getStyle().setColor(TextFormatting.GOLD);
 			data.forEach(triple -> {
 				String lives = triple.getRight().toString();
@@ -181,7 +181,7 @@ public class CommandLives extends CommandTreeBase {
 					.appendText(TextFormatting.WHITE + " - ")
 					.appendText(TextFormatting.YELLOW + triple.getLeft());
 			});
-			message.appendText("\nPage " + (page + 1) + " / " + (pageMax + 1));
+			message.appendText("\n").appendSibling(NoLives.newMessageText("lives.list.page", page + 1, pageMax + 1));
 
 			sender.sendMessage(message);
 		}
