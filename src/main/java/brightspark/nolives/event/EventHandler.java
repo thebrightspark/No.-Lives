@@ -42,8 +42,14 @@ public class EventHandler {
 
 	@SubscribeEvent(priority = EventPriority.LOW)
 	public static void onPlayerDeathSubLives(LivingDeathEvent event) {
-		if (!(event.getEntityLiving() instanceof EntityPlayerMP) || isHardcore(event.getEntityLiving().world)) return;
+		if (!(event.getEntityLiving() instanceof EntityPlayerMP) || isHardcore(event.getEntityLiving().world))
+			return;
 		EntityPlayerMP player = (EntityPlayerMP) event.getEntityLiving();
+
+		// If Sync mod installed and player is syncing to a shell, then don't lose a life
+		if (player.getEntityData().getBoolean("isDeathSyncing"))
+			return;
+
 		LifeChangeEvent.LifeLossEvent lifeLossEvent = new LifeChangeEvent.LifeLossEvent(player, 1);
 		if (!MinecraftForge.EVENT_BUS.post(lifeLossEvent)) {
 			int livesToLose = lifeLossEvent.getLivesToLose();
