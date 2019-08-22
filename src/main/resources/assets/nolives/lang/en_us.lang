@@ -1,5 +1,8 @@
 itemGroup.nolives=No. Lives
+
 item.heart.name=Heart
+item.heart.tooltip=Use this to gain %s %s
+
 tile.heart_block.name=Heart Block
 
 nolives.message.max=You already have the max number of lives! (Max: %s)
