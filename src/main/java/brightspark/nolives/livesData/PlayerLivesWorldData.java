@@ -47,7 +47,8 @@ public class PlayerLivesWorldData extends WorldSavedData {
 			int curLives = data.getLives(uuid);
 			if (NLConfig.maxLives > 0 && curLives >= NLConfig.maxLives)
 				return false;
-			int lives = data.setLives(uuid, Math.min(NLConfig.maxLives, curLives + amount));
+			int newLives = NLConfig.maxLives > 0 ? Math.min(NLConfig.maxLives, curLives + amount) : curLives + amount;
+			int lives = data.setLives(uuid, newLives);
 			int diff = lives - curLives;
 			NoLives.sendMessageText(player, "addLife", diff, NoLives.lifeOrLives(diff), lives, NoLives.lifeOrLives(lives));
 			return true;
