@@ -17,12 +17,15 @@ nolives.message.lives.add=Added %s %s. %s now has %s %s
 nolives.message.lives.sub=Subtracted %s %s. %s now has %s %s
 nolives.message.lives.set=Set %s %s for %s
 nolives.message.lives.hardcore=Cannot use commands in Hardcore!
+nolives.message.lives.max=Set the max number of lives to %s
 
 nolives.command.lives.usage="/lives [subCommand]"
 nolives.command.lives.list.usage="/lives list [page]"
 nolives.command.lives.add.usage="/lives add [playerName] <amount>"
 nolives.command.lives.sub.usage="/lives sub [playerName] <amount>"
 nolives.command.lives.set.usage="/lives set [playerName] <amount>"
+nolives.command.lives.max.usage="/lives max <amount>"
+nolives.command.lives.max.fail=Amount %s is not a valid positive integer!
 nolives.command.lives.fail.data=Failed to get Player Lives data from the world
 nolives.command.lives.fail.player=You must be a player to use this command
 nolives.command.lives.list.fail.data=Could not find any player lives data

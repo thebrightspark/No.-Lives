@@ -5,10 +5,7 @@ import brightspark.nolives.NoLives;
 import brightspark.nolives.livesData.PlayerLives;
 import brightspark.nolives.livesData.PlayerLivesWorldData;
 import com.mojang.authlib.GameProfile;
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.command.PlayerNotFoundException;
+import net.minecraft.command.*;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerProfileCache;
@@ -33,6 +30,7 @@ public class CommandLives extends CommandTreeBase {
 		addSubcommand(new CommandAdd());
 		addSubcommand(new CommandSub());
 		addSubcommand(new CommandSet());
+		addSubcommand(new CommandMax());
 		addSubcommand(new CommandTreeHelp(this));
 	}
 
@@ -105,8 +103,9 @@ public class CommandLives extends CommandTreeBase {
 		return Pair.of(uuidToChange, playerName);
 	}
 
-	private int getAmount(String[] args) throws CommandException {
+	private int getAmount(ICommandSender sender, String[] args) throws CommandException {
 		//Get amount argument
+		if (args.length <= 0) throw new WrongUsageException(getUsage(sender));
 		return parseInt(args[args.length >= 2 ? 1 : 0]);
 	}
 
@@ -220,7 +219,7 @@ public class CommandLives extends CommandTreeBase {
 		public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 			PlayerLivesWorldData livesData = getLivesData(sender);
 			Pair<UUID, String> targetPlayer = getPlayerUuidAndName(server, sender, args);
-			int amount = getAmount(args);
+			int amount = getAmount(sender, args);
 			int newAmount = livesData.addLives(targetPlayer.getLeft(), amount);
 			NoLives.sendMessageText(sender, "lives.add", amount, NoLives.lifeOrLives(amount), targetPlayer.getRight(), newAmount, NoLives.lifeOrLives(newAmount));
 		}
@@ -251,7 +250,7 @@ public class CommandLives extends CommandTreeBase {
 		public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 			PlayerLivesWorldData livesData = getLivesData(sender);
 			Pair<UUID, String> targetPlayer = getPlayerUuidAndName(server, sender, args);
-			int amount = getAmount(args);
+			int amount = getAmount(sender, args);
 			int newAmount = livesData.subLives(targetPlayer.getLeft(), amount);
 			NoLives.sendMessageText(sender, "lives.sub", amount, NoLives.lifeOrLives(amount), targetPlayer.getRight(), newAmount, NoLives.lifeOrLives(newAmount));
 		}
@@ -282,7 +281,7 @@ public class CommandLives extends CommandTreeBase {
 		public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 			PlayerLivesWorldData livesData = getLivesData(sender);
 			Pair<UUID, String> targetPlayer = getPlayerUuidAndName(server, sender, args);
-			int amount = getAmount(args);
+			int amount = getAmount(sender, args);
 			int newAmount = livesData.setLives(targetPlayer.getLeft(), amount);
 			NoLives.sendMessageText(sender, "lives.set", newAmount, NoLives.lifeOrLives(newAmount), targetPlayer.getRight());
 		}
@@ -290,6 +289,37 @@ public class CommandLives extends CommandTreeBase {
 		@Override
 		public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos targetPos) {
 			return getPlayerNameTabCompletions(server, args);
+		}
+	}
+
+	private class CommandMax extends CommandBase {
+		@Override
+		public String getName() {
+			return "max";
+		}
+
+		@Override
+		public String getUsage(ICommandSender sender) {
+			return "nolives.command.lives.set.usage";
+		}
+
+		@Override
+		public int getRequiredPermissionLevel() {
+			return 2;
+		}
+
+		@Override
+		public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+			int amount = getAmount(sender, args);
+			boolean configChanged = NLConfig.changeConfig("maxLives", amount,
+				config -> amount >= toInt(config.getMinValue()) && amount <= toInt(config.getMaxValue()));
+			if (!configChanged)
+				throw new CommandException("nolives.command.lives.max.fail", amount);
+			NoLives.sendMessageText(sender, "lives.max", amount);
+		}
+
+		private int toInt(Object obj) {
+			return Integer.valueOf((String) obj);
 		}
 	}
 }

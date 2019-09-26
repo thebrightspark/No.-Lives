@@ -1,10 +1,16 @@
 package brightspark.nolives;
 
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
+import net.minecraftforge.common.config.ConfigElement;
 import net.minecraftforge.common.config.ConfigManager;
+import net.minecraftforge.fml.client.config.IConfigElement;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+
+import java.util.function.Predicate;
 
 @Config(modid = NoLives.MOD_ID)
 public class NLConfig {
@@ -62,5 +68,39 @@ public class NLConfig {
 			if (event.getModID().equals(NoLives.MOD_ID))
 				ConfigManager.sync(NoLives.MOD_ID, Config.Type.INSTANCE);
 		}
+	}
+
+	public static boolean changeConfig(String configPath, Object newValue, Predicate<IConfigElement> validator) {
+		configPath = NoLives.MOD_ID + "." + configPath;
+		IConfigElement config = getConfig(ConfigElement.from(NLConfig.class), configPath.split("\\."), 0);
+		if (config == null)
+			throw new RuntimeException(String.format("No config found for path %s!", configPath));
+		if (!validator.test(config))
+			return false;
+		config.set(newValue);
+		// We presume a world is running, since this is only called from a command for now
+		ConfigChangedEvent event = new ConfigChangedEvent.OnConfigChangedEvent(NoLives.MOD_ID, configPath, true, config.requiresMcRestart());
+		MinecraftForge.EVENT_BUS.post(event);
+		if (!event.getResult().equals(Event.Result.DENY))
+			MinecraftForge.EVENT_BUS.post(new ConfigChangedEvent.PostConfigChangedEvent(NoLives.MOD_ID, configPath, true, config.requiresMcRestart()));
+		return true;
+	}
+
+	//Recursive method to find the config
+	private static IConfigElement getConfig(IConfigElement element, String[] path, int level) {
+		String name = path[level];
+		if (element.getName().equalsIgnoreCase(name)) {
+			if (element.isProperty())
+				return element;
+			else //noinspection ConstantConditions
+				if (level < path.length) {
+					int nextLevel = level + 1;
+					for (IConfigElement e : element.getChildElements()) {
+						IConfigElement result = getConfig(e, path, nextLevel);
+						if (result != null) return result;
+					}
+				}
+		}
+		return null;
 	}
 }
