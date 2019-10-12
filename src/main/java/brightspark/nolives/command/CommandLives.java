@@ -72,7 +72,7 @@ public class CommandLives extends CommandTreeBase {
 		int lives = livesData.getLives(player.getUniqueID());
 		ITextComponent message = NoLives.newMessageText("lives", lives, NoLives.lifeOrLives(lives));
 		if (NLConfig.maxLives > 0)
-			message.appendSibling(NoLives.newMessageText("lives.max", NLConfig.maxLives));
+			message.appendSibling(NoLives.newMessageText("maxlives", NLConfig.maxLives));
 		sender.sendMessage(message);
 	}
 
