@@ -7,10 +7,13 @@ import brightspark.nolives.item.ItemHeart;
 import brightspark.nolives.livesData.MessageGetLives;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
+import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.common.Mod;
@@ -119,5 +122,14 @@ public class NoLives {
 
 	public static void sendMessageText(ICommandSender sender, String key, Object... args) {
 		sender.sendMessage(newMessageText(key, args));
+	}
+
+	public static boolean checkCommandPermission(CommandBase command, MinecraftServer server, ICommandSender sender) {
+		if(server.isSinglePlayer())
+			return true;
+		int requiredPermLevel = command.getRequiredPermissionLevel();
+		if(sender instanceof EntityPlayerMP)
+			return server.getPlayerList().getOppedPlayers().getPermissionLevel(((EntityPlayerMP) sender).getGameProfile()) >= requiredPermLevel;
+		return sender.canUseCommand(requiredPermLevel, command.getName());
 	}
 }

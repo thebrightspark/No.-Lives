@@ -50,6 +50,11 @@ public class CommandLives extends CommandTreeBase {
 	}
 
 	@Override
+	public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
+		return NoLives.checkCommandPermission(this, server, server);
+	}
+
+	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		if (args.length == 0)
 			showLives(sender);
@@ -113,7 +118,7 @@ public class CommandLives extends CommandTreeBase {
 		return args.length == 1 ? getListOfStringsMatchingLastWord(args, server.getPlayerProfileCache().getUsernames()) : Collections.emptyList();
 	}
 
-	private class CommandList extends CommandBase {
+	private class CommandList extends NLCommandBase {
 		private static final int MAX_PAGE_SIZE = 8;
 
 		@Override
@@ -124,11 +129,6 @@ public class CommandLives extends CommandTreeBase {
 		@Override
 		public String getUsage(ICommandSender sender) {
 			return "lives list";
-		}
-
-		@Override
-		public int getRequiredPermissionLevel() {
-			return 0;
 		}
 
 		@Override
@@ -199,7 +199,7 @@ public class CommandLives extends CommandTreeBase {
 		}
 	}
 
-	private class CommandAdd extends CommandBase {
+	private class CommandAdd extends NLCommandBase {
 		@Override
 		public String getName() {
 			return "add";
@@ -230,7 +230,7 @@ public class CommandLives extends CommandTreeBase {
 		}
 	}
 
-	private class CommandSub extends CommandBase {
+	private class CommandSub extends NLCommandBase {
 		@Override
 		public String getName() {
 			return "sub";
@@ -261,7 +261,7 @@ public class CommandLives extends CommandTreeBase {
 		}
 	}
 
-	private class CommandSet extends CommandBase {
+	private class CommandSet extends NLCommandBase {
 		@Override
 		public String getName() {
 			return "set";
@@ -292,7 +292,7 @@ public class CommandLives extends CommandTreeBase {
 		}
 	}
 
-	private class CommandMax extends CommandBase {
+	private class CommandMax extends NLCommandBase {
 		@Override
 		public String getName() {
 			return "max";
@@ -319,7 +319,7 @@ public class CommandLives extends CommandTreeBase {
 		}
 
 		private int toInt(Object obj) {
-			return Integer.valueOf((String) obj);
+			return Integer.parseInt((String) obj);
 		}
 	}
 }
