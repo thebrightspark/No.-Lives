@@ -63,8 +63,8 @@ public class NoLives {
 	public void preInit(FMLPreInitializationEvent event) {
 		logger = event.getModLog();
 
-		NETWORK = NetworkRegistry.INSTANCE.newSimpleChannel(MOD_ID);
-		NETWORK.registerMessage(MessageGetLives.Handler.class, MessageGetLives.class, 0, Side.CLIENT);
+		//NETWORK = NetworkRegistry.INSTANCE.newSimpleChannel(MOD_ID);
+		//NETWORK.registerMessage(MessageGetLives.Handler.class, MessageGetLives.class, 0, Side.CLIENT);
 
 		File configDir = new File(event.getModConfigurationDirectory(), MOD_ID);
 		if (!configDir.mkdirs())

@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+// Currently unused, but will leave here for now... might adapt it for a GUI later
 public class MessageGetLives implements IMessage {
 	public Map<UUID, Integer> lives;
 
