@@ -14,6 +14,12 @@ import java.util.function.Predicate;
 
 @Config(modid = NoLives.MOD_ID)
 public class NLConfig {
+	@Config.Comment({
+		"Whether this mod is enabled",
+		"Disabling will completely disable everything in this mod, but the item and block will still exist"
+	})
+	public static boolean enabled = true;
+
 	@Config.Comment("The amount of lives a new player will start with")
 	@Config.RangeInt(min = 1)
 	public static int defaultLives = 5;
@@ -68,6 +74,10 @@ public class NLConfig {
 			if (event.getModID().equals(NoLives.MOD_ID))
 				ConfigManager.sync(NoLives.MOD_ID, Config.Type.INSTANCE);
 		}
+	}
+
+	public static void changeConfig(String configPath, Object newValue) {
+		changeConfig(configPath, newValue, config -> true);
 	}
 
 	public static boolean changeConfig(String configPath, Object newValue, Predicate<IConfigElement> validator) {

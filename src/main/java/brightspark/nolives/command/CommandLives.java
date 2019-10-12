@@ -31,6 +31,8 @@ public class CommandLives extends CommandTreeBase {
 		addSubcommand(new CommandSub());
 		addSubcommand(new CommandSet());
 		addSubcommand(new CommandMax());
+		addSubcommand(new CommandEnable());
+		addSubcommand(new CommandDisable());
 		addSubcommand(new CommandTreeHelp(this));
 	}
 
@@ -56,8 +58,11 @@ public class CommandLives extends CommandTreeBase {
 
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-		if (args.length == 0)
+		if (args.length == 0) {
+			if (!NLConfig.enabled)
+				throw new CommandException("nolives.command.lives.disabled");
 			showLives(sender);
+		}
 		else if (server.isHardcore())
 			NoLives.sendMessageText(sender, "lives.hardcore");
 		else
@@ -132,7 +137,14 @@ public class CommandLives extends CommandTreeBase {
 		}
 
 		@Override
+		public int getRequiredPermissionLevel() {
+			return 0;
+		}
+
+		@Override
 		public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+			if (!NLConfig.enabled)
+				throw new CommandException("nolives.command.lives.disabled");
 			// Get list page num if provided
 			int page = -1;
 			if (args.length > 0) {
@@ -211,12 +223,9 @@ public class CommandLives extends CommandTreeBase {
 		}
 
 		@Override
-		public int getRequiredPermissionLevel() {
-			return 2;
-		}
-
-		@Override
 		public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+			if (!NLConfig.enabled)
+				throw new CommandException("nolives.command.lives.disabled");
 			PlayerLivesWorldData livesData = getLivesData(sender);
 			Pair<UUID, String> targetPlayer = getPlayerUuidAndName(server, sender, args);
 			int amount = getAmount(sender, args);
@@ -242,12 +251,9 @@ public class CommandLives extends CommandTreeBase {
 		}
 
 		@Override
-		public int getRequiredPermissionLevel() {
-			return 2;
-		}
-
-		@Override
 		public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+			if (!NLConfig.enabled)
+				throw new CommandException("nolives.command.lives.disabled");
 			PlayerLivesWorldData livesData = getLivesData(sender);
 			Pair<UUID, String> targetPlayer = getPlayerUuidAndName(server, sender, args);
 			int amount = getAmount(sender, args);
@@ -273,12 +279,9 @@ public class CommandLives extends CommandTreeBase {
 		}
 
 		@Override
-		public int getRequiredPermissionLevel() {
-			return 2;
-		}
-
-		@Override
 		public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+			if (!NLConfig.enabled)
+				throw new CommandException("nolives.command.lives.disabled");
 			PlayerLivesWorldData livesData = getLivesData(sender);
 			Pair<UUID, String> targetPlayer = getPlayerUuidAndName(server, sender, args);
 			int amount = getAmount(sender, args);
@@ -304,12 +307,9 @@ public class CommandLives extends CommandTreeBase {
 		}
 
 		@Override
-		public int getRequiredPermissionLevel() {
-			return 2;
-		}
-
-		@Override
 		public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+			if (!NLConfig.enabled)
+				throw new CommandException("nolives.command.lives.disabled");
 			int amount = getAmount(sender, args);
 			boolean configChanged = NLConfig.changeConfig("maxLives", amount,
 				config -> amount >= toInt(config.getMinValue()) && amount <= toInt(config.getMaxValue()));
@@ -320,6 +320,44 @@ public class CommandLives extends CommandTreeBase {
 
 		private int toInt(Object obj) {
 			return Integer.parseInt((String) obj);
+		}
+	}
+
+	private static class CommandEnable extends NLCommandBase {
+		@Override
+		public String getName() {
+			return "enable";
+		}
+
+		@Override
+		public String getUsage(ICommandSender sender) {
+			return "nolives.command.lives.enable.usage";
+		}
+
+		@Override
+		public void execute(MinecraftServer server, ICommandSender sender, String[] args) {
+			if (!NLConfig.enabled)
+				NLConfig.changeConfig("enabled", true);
+			NoLives.sendMessageText(sender, "lives.enable");
+		}
+	}
+
+	private static class CommandDisable extends NLCommandBase {
+		@Override
+		public String getName() {
+			return "disable";
+		}
+
+		@Override
+		public String getUsage(ICommandSender sender) {
+			return "nolives.command.lives.disable.usage";
+		}
+
+		@Override
+		public void execute(MinecraftServer server, ICommandSender sender, String[] args) {
+			if (NLConfig.enabled)
+				NLConfig.changeConfig("enabled", false);
+			NoLives.sendMessageText(sender, "lives.disable");
 		}
 	}
 }

@@ -29,7 +29,7 @@ public class ItemHeart extends Item {
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
 		ItemStack stack = player.getHeldItem(hand);
-		if (!world.isRemote) {
+		if (NLConfig.enabled && !world.isRemote) {
 			LifeChangeEvent.LifeGainEvent event = new LifeChangeEvent.LifeGainEvent((EntityPlayerMP) player, NLConfig.livesFromHeartItem, LifeChangeEvent.LifeGainEvent.GainType.ITEM);
 			if (!MinecraftForge.EVENT_BUS.post(event) && event.getLivesToGain() > 0)
 				//Add life to player
