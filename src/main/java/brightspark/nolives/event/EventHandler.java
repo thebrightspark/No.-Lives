@@ -24,6 +24,8 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
+import java.util.UUID;
+
 @Mod.EventBusSubscriber
 public class EventHandler {
 	private static boolean deleteWorld = false;
@@ -157,8 +159,16 @@ public class EventHandler {
 	@SubscribeEvent
 	public static void onLogin(net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent event) {
 		// Ensure player lives data is created for the player
-		PlayerLivesWorldData data = PlayerLivesWorldData.get(event.player.world);
-		if (data != null)
-			data.getPlayerLives(event.player.getUniqueID());
+		EntityPlayer player = event.player;
+		PlayerLivesWorldData data = PlayerLivesWorldData.get(player.world);
+		if (data != null) {
+			UUID uuid = player.getUniqueID();
+			int lives = data.getLives(uuid);
+			if (data.getAndRemovePendingRevival(uuid) || (NLConfig.reviveOnLogin && lives > 0 && player.isSpectator())) {
+				// Change player back to survival
+				player.setGameType(GameType.SURVIVAL);
+				NoLives.sendMessageText(player, "revive", lives);
+			}
+		}
 	}
 }

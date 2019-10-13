@@ -12,6 +12,7 @@ import net.minecraft.server.management.PlayerProfileCache;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.GameType;
 import net.minecraftforge.server.command.CommandTreeBase;
 import net.minecraftforge.server.command.CommandTreeHelp;
 import org.apache.commons.lang3.tuple.Pair;
@@ -31,6 +32,7 @@ public class CommandLives extends CommandTreeBase {
 		addSubcommand(new CommandSub());
 		addSubcommand(new CommandSet());
 		addSubcommand(new CommandMax());
+		addSubcommand(new CommandRevive());
 		addSubcommand(new CommandEnable());
 		addSubcommand(new CommandDisable());
 		addSubcommand(new CommandTreeHelp(this));
@@ -87,17 +89,16 @@ public class CommandLives extends CommandTreeBase {
 		return livesData;
 	}
 
-	private Pair<UUID, String> getPlayerUuidAndName(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+	private Pair<UUID, String> getPlayerUuidAndName(MinecraftServer server, ICommandSender sender, String name) throws CommandException {
 		UUID uuidToChange;
 		String playerName;
-		if (args.length >= 2) {
-			String target = args[0];
+		if (name != null) {
 			try {
-				EntityPlayer player = getPlayer(server, sender, target);
+				EntityPlayer player = getPlayer(server, sender, name);
 				uuidToChange = player.getUniqueID();
 				playerName = player.getName();
 			} catch (PlayerNotFoundException e) {
-				GameProfile profile = server.getPlayerProfileCache().getGameProfileForUsername(target);
+				GameProfile profile = server.getPlayerProfileCache().getGameProfileForUsername(name);
 				if (profile == null)
 					throw e;
 				else {
@@ -227,8 +228,8 @@ public class CommandLives extends CommandTreeBase {
 			if (!NLConfig.enabled)
 				throw new CommandException("nolives.command.lives.disabled");
 			PlayerLivesWorldData livesData = getLivesData(sender);
-			Pair<UUID, String> targetPlayer = getPlayerUuidAndName(server, sender, args);
 			int amount = getAmount(sender, args);
+			Pair<UUID, String> targetPlayer = getPlayerUuidAndName(server, sender, args[0]);
 			int newAmount = livesData.addLives(targetPlayer.getLeft(), amount);
 			NoLives.sendMessageText(sender, "lives.add", amount, NoLives.lifeOrLives(amount), targetPlayer.getRight(), newAmount, NoLives.lifeOrLives(newAmount));
 		}
@@ -254,9 +255,9 @@ public class CommandLives extends CommandTreeBase {
 		public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 			if (!NLConfig.enabled)
 				throw new CommandException("nolives.command.lives.disabled");
-			PlayerLivesWorldData livesData = getLivesData(sender);
-			Pair<UUID, String> targetPlayer = getPlayerUuidAndName(server, sender, args);
 			int amount = getAmount(sender, args);
+			PlayerLivesWorldData livesData = getLivesData(sender);
+			Pair<UUID, String> targetPlayer = getPlayerUuidAndName(server, sender, args[0]);
 			int newAmount = livesData.subLives(targetPlayer.getLeft(), amount);
 			NoLives.sendMessageText(sender, "lives.sub", amount, NoLives.lifeOrLives(amount), targetPlayer.getRight(), newAmount, NoLives.lifeOrLives(newAmount));
 		}
@@ -282,9 +283,9 @@ public class CommandLives extends CommandTreeBase {
 		public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 			if (!NLConfig.enabled)
 				throw new CommandException("nolives.command.lives.disabled");
-			PlayerLivesWorldData livesData = getLivesData(sender);
-			Pair<UUID, String> targetPlayer = getPlayerUuidAndName(server, sender, args);
 			int amount = getAmount(sender, args);
+			PlayerLivesWorldData livesData = getLivesData(sender);
+			Pair<UUID, String> targetPlayer = getPlayerUuidAndName(server, sender, args[0]);
 			int newAmount = livesData.setLives(targetPlayer.getLeft(), amount);
 			NoLives.sendMessageText(sender, "lives.set", newAmount, NoLives.lifeOrLives(newAmount), targetPlayer.getRight());
 		}
@@ -320,6 +321,45 @@ public class CommandLives extends CommandTreeBase {
 
 		private int toInt(Object obj) {
 			return Integer.parseInt((String) obj);
+		}
+	}
+
+	private class CommandRevive extends NLCommandBase {
+		@Override
+		public String getName() {
+			return "revive";
+		}
+
+		@Override
+		public String getUsage(ICommandSender sender) {
+			return "nolives.command.lives.revive.usage";
+		}
+
+		@Override
+		public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+			if (!NLConfig.enabled)
+				throw new CommandException("nolives.command.lives.disabled");
+			Pair<UUID, String> playerPair = getPlayerUuidAndName(server, sender, args.length > 0 ? args[0] : null);
+			UUID uuid = playerPair.getLeft();
+			PlayerLivesWorldData data = getLivesData(sender);
+			PlayerLives playerLives = data.getPlayerLives(uuid);
+			int lives = playerLives.lives = NLConfig.defaultLives;
+
+			// Unban player if they're banned
+			GameProfile profile = server.getPlayerProfileCache().getProfileByUUID(uuid);
+			//noinspection ConstantConditions
+			server.getPlayerList().getBannedPlayers().removeEntry(profile);
+
+			EntityPlayer player = server.getPlayerList().getPlayerByUUID(uuid);
+			//noinspection ConstantConditions
+			if (player != null) {
+				player.setGameType(GameType.SURVIVAL);
+				NoLives.sendMessageText(player, "revive", lives);
+				NoLives.sendMessageText(sender, "revive.success", lives);
+			} else {
+				data.addPendingRevival(uuid);
+				NoLives.sendMessageText(sender, "revive.pending", lives);
+			}
 		}
 	}
 

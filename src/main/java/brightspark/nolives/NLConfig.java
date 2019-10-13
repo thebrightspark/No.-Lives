@@ -56,6 +56,13 @@ public class NLConfig {
 	public static boolean banOnOutOfLives = true;
 
 	@Config.Comment({
+			"If true, then if a player had previously run out of lives and is currently in Spectator mode and they are later given another life in some way, then on login they will be set back to Survival mode",
+			"If false, then their game mode will not be changed and may need an OP to manually change their game mode if desired",
+            "Note that this config will not work if the player is banned - you'll need to use the revive command or manually unban the player"
+	})
+	public static boolean reviveOnLogin = false;
+
+	@Config.Comment({
 		"The frequency at which players will regenerate lives (in seconds), up until the regenMaxLives config",
 		"If set to 0, then players will not regen lives at all"
 	})

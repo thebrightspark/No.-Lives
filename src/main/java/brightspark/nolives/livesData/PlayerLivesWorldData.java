@@ -10,13 +10,12 @@ import net.minecraft.world.storage.MapStorage;
 import net.minecraft.world.storage.WorldSavedData;
 import net.minecraftforge.common.util.Constants;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class PlayerLivesWorldData extends WorldSavedData {
 	private static final String NAME = NoLives.MOD_ID + "_playerLives";
 	private Map<UUID, PlayerLives> playerLives = new HashMap<>();
+	private List<UUID> pendingRevival = new LinkedList<>();
 
 	public PlayerLivesWorldData() {
 		super(NAME);
@@ -98,6 +97,14 @@ public class PlayerLivesWorldData extends WorldSavedData {
 		markDirty();
 	}
 
+	public void addPendingRevival(UUID uuid) {
+		pendingRevival.add(uuid);
+	}
+
+	public boolean getAndRemovePendingRevival(UUID uuid) {
+		return pendingRevival.remove(uuid);
+	}
+
 	@Override
 	public void readFromNBT(NBTTagCompound nbt) {
 		NBTTagList tagList = nbt.getTagList("playerLives", Constants.NBT.TAG_COMPOUND);
@@ -106,6 +113,13 @@ public class PlayerLivesWorldData extends WorldSavedData {
 			UUID uuid = tag.getUniqueId("uuid");
 			PlayerLives pl = new PlayerLives(tag.getCompoundTag("pl"));
 			playerLives.put(uuid, pl);
+		}
+		pendingRevival.clear();
+		tagList = nbt.getTagList("pendingRevival", Constants.NBT.TAG_COMPOUND);
+		for (int i = 0; i < tagList.tagCount(); i++) {
+			NBTTagCompound tag = tagList.getCompoundTagAt(i);
+			UUID uuid = tag.getUniqueId("uuid");
+			pendingRevival.add(uuid);
 		}
 	}
 
@@ -119,6 +133,13 @@ public class PlayerLivesWorldData extends WorldSavedData {
 			tagList.appendTag(tag);
 		}
 		nbt.setTag("playerLives", tagList);
+		tagList = new NBTTagList();
+		for (UUID uuid : pendingRevival) {
+			NBTTagCompound tag = new NBTTagCompound();
+			tag.setUniqueId("uuid", uuid);
+			tagList.appendTag(tag);
+		}
+		nbt.setTag("pendingRevival", tagList);
 		return nbt;
 	}
 }
